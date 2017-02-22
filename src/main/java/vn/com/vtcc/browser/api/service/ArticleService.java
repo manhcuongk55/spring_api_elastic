@@ -19,8 +19,8 @@ import vn.com.vtcc.browser.api.exception.DataNotFoundException;
 
 public class ArticleService {
 	Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
+	
 	public String getListHotArticle(String from, String size) throws ParseException {
-		System.out.println("Test for cache redis");
 		WebTarget rootTarget = client
 				.target(Application.URL_ELASTICSEARCH + "from=" + from + "&size=" + size + "&sort=time_post:desc");
 		Response response = rootTarget.request() 
@@ -43,6 +43,7 @@ public class ArticleService {
 
 	}
 	public String getArticleById(String id) throws ParseException {
+		System.out.println("Test for cache redis:" + System.currentTimeMillis()/10000000);
 		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "q=_id:" + id);
 		Response response = rootTarget.request().get();
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
@@ -63,6 +64,7 @@ public class ArticleService {
 	}
 
 	public String getListArticleByCategoryId(String from, String size, String categoryId) throws ParseException {
+		System.out.println("Test for cache redis:" + System.currentTimeMillis()/1000);
 		String path = "";
 		try {
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"

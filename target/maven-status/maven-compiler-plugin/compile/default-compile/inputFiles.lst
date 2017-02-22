@@ -17,3 +17,4 @@
 /home/utit/Desktop/WebService_Browser/browser-news-service/src/main/java/vn/com/vtcc/browser/api/exception/DataNotFoundException.java
 /home/utit/Desktop/WebService_Browser/browser-news-service/src/main/java/vn/com/vtcc/browser/api/model/Profile.java
 /home/utit/Desktop/WebService_Browser/browser-news-service/src/main/java/vn/com/vtcc/browser/api/model/Comment.java
+/home/utit/Desktop/WebService_Browser/browser-news-service/src/main/java/vn/com/vtcc/browser/api/config/CacheConfig.java

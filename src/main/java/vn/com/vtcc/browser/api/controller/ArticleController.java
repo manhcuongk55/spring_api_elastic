@@ -1,5 +1,7 @@
 package vn.com.vtcc.browser.api.controller;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +17,7 @@ public class ArticleController {
 	ArticleService ArticleService = new ArticleService();
 	@CrossOrigin
 	@RequestMapping(value = "/get_article_id", method = RequestMethod.GET, produces = "application/json")
-	@Cacheable("getArticleById")
+	@Cacheable(cacheNames="getArticleById", key="#id")
 	public String getArticleById(
 			@RequestParam(value = "id", defaultValue = "596b8412b2c5fad54a4ee565a37e7baa") String id)
 			throws org.json.simple.parser.ParseException {
@@ -23,7 +25,6 @@ public class ArticleController {
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_hot_article", method = RequestMethod.GET, produces = "application/json")
-	@Cacheable("getListHotNews")
 	public String getListHotNews(@RequestParam(value = "from", defaultValue = "0") String from,
 			@RequestParam(value = "size", defaultValue = "20") String size)
 			throws org.json.simple.parser.ParseException {
@@ -31,7 +32,6 @@ public class ArticleController {
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_categoryId", method = RequestMethod.GET, produces = "application/json")
-	@Cacheable("getListArticlesByCategor")
 	public String getListArticlesByCategor(@RequestParam(value = "from", defaultValue = "0") String from,
 			@RequestParam(value = "size", defaultValue = "20") String size,
 			@RequestParam(value = "categoryId", defaultValue = "0") String categoryId)
@@ -40,7 +40,6 @@ public class ArticleController {
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_categoryName", method = RequestMethod.GET, produces = "application/json")
-	@Cacheable("getListArticlesByCategoryName")
 	public String getListArticlesByCategoryName(@RequestParam(value = "from", defaultValue = "0") String from,
 			@RequestParam(value = "size", defaultValue = "20") String size,
 			@RequestParam(value = "categoryName", defaultValue = "a") String categoryName)
@@ -49,7 +48,6 @@ public class ArticleController {
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_tags", method = RequestMethod.GET, produces = "application/json")
-	@Cacheable("getListArticlesByTags")
 	public String getListArticlesByTags(@RequestParam(value = "from", defaultValue = "0") String from,
 			@RequestParam(value = "size", defaultValue = "20") String size,
 			@RequestParam(value = "tags", defaultValue = "a") String tags)
@@ -58,7 +56,6 @@ public class ArticleController {
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_related_tags", method = RequestMethod.GET, produces = "application/json")
-	@Cacheable("getListArticlReleatedTags")
 	public String getListArticlReleatedTags(@RequestParam(value = "tags", defaultValue = "a") String tags,
 			@RequestParam(value = "number", defaultValue = "4") String number)
 			throws org.json.simple.parser.ParseException {
@@ -66,7 +63,6 @@ public class ArticleController {
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_tittle", method = RequestMethod.GET, produces = "application/json")
-	@Cacheable("getListArticlSearchByTitle")
 	public String getListArticlSearchByTitle(@RequestParam(value = "from", defaultValue = "0") String from,
 			@RequestParam(value = "size", defaultValue = "20") String size,
 			@RequestParam(value = "title", defaultValue = "title") String title)
@@ -75,10 +71,9 @@ public class ArticleController {
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_source", method = RequestMethod.GET, produces = "application/json")
-	@Cacheable("getListArticlSearchBySource")
 	public String getListArticlSearchBySource(@RequestParam(value = "from", defaultValue = "0") String from,
 			@RequestParam(value = "size", defaultValue = "20") String size,
-			@RequestParam(value = "title", defaultValue = "title") String source)
+			@RequestParam(value = "source", defaultValue = "source") String source)
 			throws org.json.simple.parser.ParseException {
 		return ArticleService.getListArticleByStringInSource(from, size, source);
 	}

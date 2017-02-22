@@ -22,7 +22,7 @@ public class ArticleService {
 	
 	public String getListHotArticle(String from, String size) throws ParseException {
 		WebTarget rootTarget = client
-				.target(Application.URL_ELASTICSEARCH + "from=" + from + "&size=" + size + "&sort=time_post:desc");
+				.target(Application.URL_ELASTICSEARCH  + "q=display:" + Application.STATUS_DISPLAY +"&from=" + from + "&size=" + size + "&sort=time_post:desc");
 		Response response = rootTarget.request() 
 				.get(); // Call get method
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
@@ -68,7 +68,7 @@ public class ArticleService {
 		String path = "";
 		try {
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
-					+ "&q=category.id:" + URLEncoder.encode(categoryId, "UTF-8");
+					+ "&q=display: " + Application.STATUS_DISPLAY +  " AND category.id:" + URLEncoder.encode(categoryId, "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -97,7 +97,7 @@ public class ArticleService {
 		String path = "";
 		try {
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
-					+ "&q=category.name:" + URLEncoder.encode("\"" + categoryName + "\"", "UTF-8");
+					+ "&q=display:" + Application.STATUS_DISPLAY + " AND category.name:" + URLEncoder.encode("\"" + categoryName + "\"", "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -125,9 +125,9 @@ public class ArticleService {
 	public String getListArticleByTags(String from, String size, String tags) throws ParseException {
 		WebTarget rootTarget = client
 				.target(Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc");
+		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
 		Response response = rootTarget.request() 
-				.post(Entity.json("{ \"query\" : { \"constant_score\" : { \"filter\" : { \"terms\" : { \"tags\" : [\""
-						+ tags + "\"] } } } } }"));
+				.post(Entity.json(jsonObject));
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
 			JSONParser parser = new JSONParser();
 			JSONObject json = new JSONObject();
@@ -147,9 +147,9 @@ public class ArticleService {
 
 	public String getListArticlReleatedTags(String tags, String number) throws ParseException {
 		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "&size=" + number + "&sort=time_post:desc");
+		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
 		Response response = rootTarget.request()
-				.post(Entity.json("{ \"query\" : { \"constant_score\" : { \"filter\" : { \"terms\" : { \"tags\" : [\""
-						+ tags + "\"] } } } } }"));
+				.post(Entity.json(jsonObject));
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
 			JSONParser parser = new JSONParser();
 			JSONObject json = new JSONObject();
@@ -170,7 +170,7 @@ public class ArticleService {
 	public String getListArticleByStringInTitle(String from, String size, String value) throws ParseException {
 		String path = "";
 		try {
-			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=title:"
+			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=display:"+Application.STATUS_DISPLAY+" AND title:"
 					+ URLEncoder.encode("\"" + value + "\"", "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
@@ -199,7 +199,7 @@ public class ArticleService {
 	public String getListArticleByStringInSource(String from, String size, String value) throws ParseException {
 		String path = "";
 		try {
-			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=source:"
+			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=display:"+Application.STATUS_DISPLAY+" AND source:"
 					+ URLEncoder.encode("\"" + value + "\"", "UTF-8");
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block

@@ -7,11 +7,92 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fca950d2-e86d-4319-8d70-b3b95c167f3c" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/artifacts/browser_news_service_jar.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/out/artifacts/browser_news_service_jar/browser-news-service.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/java/META-INF/MANIFEST.MF" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/META-INF/maven/vn.com.vtcc.browser.api/browser-news-service/pom.properties" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/META-INF/maven/vn.com.vtcc.browser.api/browser-news-service/pom.xml" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/hibernate_browser.cfg.xml" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/hibernate_news.cfg.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/accessors-smart-1.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/activation-1.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/antlr-2.7.7.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/asm-5.0.3.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/asm-all-repackaged-2.0.3.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/auto-depends-2.0.3.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/classmate-1.3.3.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/commons-codec-1.10.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/commons-io-2.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/dom4j-1.6.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/geronimo-jta_1.1_spec-1.1.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/gson-2.6.2.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/guava-osgi-11.0.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/hibernate-commons-annotations-5.0.1.Final.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/hibernate-core-5.2.2.Final.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/hibernate-jpa-2.1-api-1.0.0.Final.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/hibernate-validator-5.3.4.Final.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/hk2-api-2.0.3.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/httpclient-4.5.2.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/httpcore-4.4.6.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jackson-annotations-2.8.0.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jackson-core-2.8.6.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jackson-databind-2.5.0.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jackson-jaxrs-base-2.8.6.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jackson-jaxrs-json-provider-2.8.6.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jackson-module-jaxb-annotations-2.8.6.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jandex-2.0.0.Final.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/javassist-3.12.1.GA.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/javassist-3.21.0-GA.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/javax.inject-1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/javax.inject-2.0.3.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/javax.ws.rs-api-2.1-m03.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jaxrs-api-3.0.2.Final.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jboss-logging-3.3.0.Final.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jcip-annotations-1.0.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jcl-over-slf4j-1.7.22.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jersey-client-2.0-m04.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jersey-common-2.0-m04.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/json-20080701.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/json-path-2.2.0.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/json-simple-1.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/json-smart-2.2.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jsr250-api-1.0.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jtds-1.3.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/jul-to-slf4j-1.7.22.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/junit-3.8.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/log4j-over-slf4j-1.7.22.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/logback-classic-1.1.9.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/logback-core-1.1.9.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/mail-1.4.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/mysql-connector-java-5.1.34.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/ojdbc6-11.2.0.3.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/osgi-resource-locator-1.0.1.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/resteasy-client-3.0.2.Final.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/resteasy-jaxrs-3.0.2.Final.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/scannotation-1.0.3.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/slf4j-api-1.7.22.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/slf4j-simple-1.7.22.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/snakeyaml-1.17.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-aop-4.3.6.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-beans-4.3.6.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-boot-1.5.1.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-boot-autoconfigure-1.5.1.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-boot-starter-1.5.1.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-boot-starter-logging-1.5.1.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-boot-starter-tomcat-1.5.1.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-boot-starter-web-1.5.1.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-context-4.3.6.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-core-4.3.6.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-expression-4.3.6.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-web-4.3.6.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/spring-webmvc-4.3.6.RELEASE.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/tiger-types-1.4.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/tomcat-embed-core-8.5.11.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/tomcat-embed-el-8.5.11.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/tomcat-embed-websocket-8.5.11.jar" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/lib/validation-api-1.1.0.Final.jar" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/browser-news-service-0.0.1-SNAPSHOT.jar" afterPath="$PROJECT_DIR$/target/browser-news-service-0.0.1-SNAPSHOT.jar" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/browser-news-service-0.0.1-SNAPSHOT.jar.original" afterPath="$PROJECT_DIR$/target/browser-news-service-0.0.1-SNAPSHOT.jar.original" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/vn/com/vtcc/browser/api/Application.class" afterPath="$PROJECT_DIR$/target/classes/vn/com/vtcc/browser/api/Application.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/vn/com/vtcc/browser/api/config/CacheConfig.class" afterPath="$PROJECT_DIR$/target/classes/vn/com/vtcc/browser/api/config/CacheConfig.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/vn/com/vtcc/browser/api/controller/ArticleController.class" afterPath="$PROJECT_DIR$/target/classes/vn/com/vtcc/browser/api/controller/ArticleController.class" />
@@ -38,15 +119,19 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/vn/com/vtcc/browser/api/utils/HibernateUtilsForBrowser.class" afterPath="$PROJECT_DIR$/target/classes/vn/com/vtcc/browser/api/utils/HibernateUtilsForBrowser.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/vn/com/vtcc/browser/api/utils/HibernateUtilsForNews.class" afterPath="$PROJECT_DIR$/target/classes/vn/com/vtcc/browser/api/utils/HibernateUtilsForNews.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/test-classes/vn/com/vtcc/browser/api/AppTest.class" afterPath="$PROJECT_DIR$/target/test-classes/vn/com/vtcc/browser/api/AppTest.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/browser_news_service_jar.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/browser_news_service_jar.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/encodings.xml" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/browser-news-service.iml" afterPath="$PROJECT_DIR$/browser-news-service.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/vn/com/vtcc/browser/api/Application.java" afterPath="$PROJECT_DIR$/src/main/java/vn/com/vtcc/browser/api/Application.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/vn/com/vtcc/browser/api/service/ArticleService.java" afterPath="$PROJECT_DIR$/src/main/java/vn/com/vtcc/browser/api/service/ArticleService.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/META-INF/MANIFEST.MF" afterPath="$PROJECT_DIR$/target/classes/META-INF/MANIFEST.MF" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/maven-archiver/pom.properties" afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-vn.com.vtcc.browser.api.AppTest.xml" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-vn.com.vtcc.browser.api.AppTest.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-vn.com.vtcc.browser.api.unitTest.UserLoginUnitTest.xml" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-vn.com.vtcc.browser.api.unitTest.UserLoginUnitTest.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/surefire-reports/vn.com.vtcc.browser.api.AppTest.txt" afterPath="$PROJECT_DIR$/target/surefire-reports/vn.com.vtcc.browser.api.AppTest.txt" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -61,12 +146,79 @@
     <option name="PATCH_PATH" value="" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="Application.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/vn/com/vtcc/browser/api/Application.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+              <folding>
+                <marker date="1487755664851" expanded="false" signature="880:885" ph=" { " />
+                <marker date="1487755664851" expanded="false" signature="932:935" ph=" }" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ArticleService.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/vn/com/vtcc/browser/api/service/ArticleService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="374">
+              <caret line="40" column="65" lean-forward="false" selection-start-line="40" selection-start-column="65" selection-end-line="40" selection-end-column="65" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pom.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="420">
+              <caret line="88" column="20" lean-forward="false" selection-start-line="88" selection-start-column="20" selection-end-line="88" selection-end-column="20" />
+              <folding>
+                <marker date="1487756535200" expanded="true" signature="1223:1342" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="1357:1486" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="1603:1732" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="1850:1972" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="2018:2133" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="2260:2380" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="2395:2519" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="2619:2750" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="2851:2987" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="3104:3254" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="3269:3404" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="3419:3543" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="3558:3669" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="3684:3804" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="3819:3957" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="3972:4086" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="4119:4407" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="4134:4228" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="4288:4390" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="4429:4573" ph="..." />
+                <marker date="1487756535200" expanded="true" signature="4450:4550" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GradleLocalSettings">
     <option name="externalProjectsViewState">
       <projects_view />
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/main/java/vn/com/vtcc/browser/api/Application.java" />
+        <option value="$PROJECT_DIR$/pom.xml" />
+      </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
@@ -171,15 +323,49 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="out" />
+              <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="artifacts" />
+              <option name="myItemId" value="main" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="browser_news_service_jar" />
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="api" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="browser-news-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="browser-news-service" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="api" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="service" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -193,6 +379,7 @@
     <property name="project.structure.last.edited" value="Artifacts" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../browser-news-service" />
   </component>
   <component name="RunManager">
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
@@ -471,7 +658,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="24" width="1855" height="1056" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -488,7 +675,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959569" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24959569" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -513,6 +700,81 @@
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
     <option name="FILTER_TARGETS" value="false" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/main/java/hibernate_news.cfg.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/hibernate_browser.cfg.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="88" column="20" lean-forward="false" selection-start-line="88" selection-start-column="20" selection-end-line="88" selection-end-column="20" />
+          <folding>
+            <marker date="1487756535200" expanded="true" signature="1223:1342" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="1357:1486" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="1603:1732" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="1850:1972" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="2018:2133" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="2260:2380" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="2395:2519" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="2619:2750" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="2851:2987" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="3104:3254" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="3269:3404" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="3419:3543" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="3558:3669" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="3684:3804" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="3819:3957" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="3972:4086" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="4119:4407" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="4134:4228" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="4288:4390" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="4429:4573" ph="..." />
+            <marker date="1487756535200" expanded="true" signature="4450:4550" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/vn/com/vtcc/browser/api/Application.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+          <folding>
+            <marker date="1487755664851" expanded="false" signature="880:885" ph=" { " />
+            <marker date="1487755664851" expanded="false" signature="932:935" ph=" }" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/vn/com/vtcc/browser/api/service/ArticleService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="40" column="65" lean-forward="false" selection-start-line="40" selection-start-column="65" selection-end-line="40" selection-end-column="65" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
   </component>
   <component name="masterDetails">
     <states>

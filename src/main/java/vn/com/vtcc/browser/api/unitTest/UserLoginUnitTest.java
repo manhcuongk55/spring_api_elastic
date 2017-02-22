@@ -19,7 +19,7 @@ import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
 import vn.com.vtcc.browser.api.model.User;
 import vn.com.vtcc.browser.api.service.UserService;
-import vn.com.vtcc.browser.api.utils.HibernateUtils;
+import vn.com.vtcc.browser.api.utils.HibernateUtilsForNews;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -60,7 +60,7 @@ public class UserLoginUnitTest {
 				userUpdate.setAvatar_url(json.get("picture").toString());
 				userUpdate.setCreated_at(System.currentTimeMillis() / 1000);
 				userUpdate.setLast_logged_in_at(System.currentTimeMillis() / 1000);
-				SessionFactory factory = HibernateUtils.getSessionFactory();
+				SessionFactory factory = HibernateUtilsForNews.getSessionFactory();
 				Session session = factory.getCurrentSession();
 				try {
 					if (!session.beginTransaction().isActive()) {

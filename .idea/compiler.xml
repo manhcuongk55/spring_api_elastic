@@ -7,18 +7,10 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="browser-news-service" />
-        <module name="browser-news-service (1)" />
-        <module name="browser-news-service (2)" />
-        <module name="browser-news-service (3)" />
-        <module name="maven-archiver" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="browser-news-service" target="1.5" />
-      <module name="browser-news-service (1)" target="1.8" />
-      <module name="browser-news-service (2)" target="1.5" />
-      <module name="browser-news-service (3)" target="1.8" />
-      <module name="maven-archiver" target="1.5" />
+      <module name="browser-news-service" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

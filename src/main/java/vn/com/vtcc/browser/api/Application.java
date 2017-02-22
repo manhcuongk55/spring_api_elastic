@@ -10,7 +10,7 @@ import org.springframework.cache.annotation.EnableCaching;
 @EnableCaching
 public class Application {
 	public static final int RESPONE_STATAUS_OK = 200;
-	public static final String URL_ELASTICSEARCH = "http://192.168.10.34:9200/br_article_v3/article/_search?";
+	public static final String URL_ELASTICSEARCH = "http://192.168.10.34:9200/br_article_v4/article/_search?";
 	public static final String URL_GOOGLE = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=";
 
 	public static void main(String[] args) {

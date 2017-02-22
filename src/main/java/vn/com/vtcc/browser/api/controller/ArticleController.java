@@ -77,4 +77,5 @@ public class ArticleController {
 			throws org.json.simple.parser.ParseException {
 		return ArticleService.getListArticleByStringInSource(from, size, source);
 	}
+	
 }

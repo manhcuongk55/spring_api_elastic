@@ -8,7 +8,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
 import vn.com.vtcc.browser.api.model.Category;
-import vn.com.vtcc.browser.api.utils.HibernateUtilsForBrowser;
+import vn.com.vtcc.browser.api.utils.HibernateUtils;
 
 public class GetCategoryUnitTest {
 
@@ -19,7 +19,7 @@ public class GetCategoryUnitTest {
 
 	public static List<Category> getCategoryFromDatabase() {
 		List<Category> categories = new ArrayList<>();
-		SessionFactory factory = HibernateUtilsForBrowser.getSessionFactory();
+		SessionFactory factory = HibernateUtils.getSessionFactory();
 		Session session = factory.getCurrentSession();
 		try {
 			session.getTransaction().begin();

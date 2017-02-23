@@ -17,7 +17,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
 import vn.com.vtcc.browser.api.model.User;
-import vn.com.vtcc.browser.api.utils.HibernateUtilsForNews;
+import vn.com.vtcc.browser.api.utils.HibernateUtils;
 
 public class UserService {
 	Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
@@ -39,7 +39,7 @@ public class UserService {
 				userUpdate.setAvatar_url(json.get("picture").toString());
 				userUpdate.setCreated_at(System.currentTimeMillis() / 1000);
 				userUpdate.setLast_logged_in_at(System.currentTimeMillis() / 1000);
-				SessionFactory factory = HibernateUtilsForNews.getSessionFactory();
+				SessionFactory factory = HibernateUtils.getSessionFactory();
 				Session session = factory.getCurrentSession();
 				try {
 					if (!session.beginTransaction().isActive()) {

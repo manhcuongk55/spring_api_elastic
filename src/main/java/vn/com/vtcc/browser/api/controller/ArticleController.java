@@ -24,7 +24,7 @@ public class ArticleController {
 		return ArticleService.getArticleById(id);
 	}
 	@CrossOrigin
-	@RequestMapping(value = "/get_list_hot_article", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/ ", method = RequestMethod.GET, produces = "application/json")
 	public String getListHotNews(@RequestParam(value = "from", defaultValue = "0") String from,
 			@RequestParam(value = "size", defaultValue = "20") String size)
 			throws org.json.simple.parser.ParseException {

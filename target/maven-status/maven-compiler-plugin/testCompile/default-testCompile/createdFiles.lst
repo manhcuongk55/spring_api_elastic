@@ -13,12 +13,11 @@ vn/com/vtcc/browser/api/model/Article.class
 vn/com/vtcc/browser/api/model/ESDocumentResponse.class
 vn/com/vtcc/browser/api/model/SortArticle.class
 vn/com/vtcc/browser/api/model/Category.class
-vn/com/vtcc/browser/api/utils/HibernateUtilsForBrowser.class
-vn/com/vtcc/browser/api/utils/HibernateUtilsForNews.class
 vn/com/vtcc/browser/api/service/ArticleService.class
 vn/com/vtcc/browser/api/controller/CategoryController.class
 vn/com/vtcc/browser/api/model/Link.class
 vn/com/vtcc/browser/api/model/Profile.class
 vn/com/vtcc/browser/api/model/Comment.class
 vn/com/vtcc/browser/api/controller/ArticleController.class
+vn/com/vtcc/browser/api/utils/HibernateUtils.class
 vn/com/vtcc/browser/api/service/CategoryService.class

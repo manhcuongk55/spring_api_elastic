@@ -2,6 +2,7 @@ package vn.com.vtcc.browser.api.service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.sql.Timestamp;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -19,10 +20,19 @@ import vn.com.vtcc.browser.api.exception.DataNotFoundException;
 
 public class ArticleService {
 	Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
-	
-	public String getListHotArticle(String from, String size) throws ParseException {
+
+	public static Timestamp getTimeStampNow() {
+		Timestamp now = new Timestamp(System.currentTimeMillis());
+		return now;
+	}
+
+	public String getListHotArticle(String from, String size, String timestamp) throws ParseException {
+		if (timestamp.equals("0")) {
+			Timestamp now = getTimeStampNow();
+			timestamp = String.valueOf(now.getTime());
+		}
 		WebTarget rootTarget = client
-				.target(Application.URL_ELASTICSEARCH  + "q=display:" + Application.STATUS_DISPLAY +"&from=" + from + "&size=" + size + "&sort=time_post:desc");
+				.target(Application.URL_ELASTICSEARCH  + "q=display:" + Application.STATUS_DISPLAY + " AND timestamp:[* TO " + timestamp + "]&from=" + from + "&size=" + size +  "&sort=time_post:desc");
 		Response response = rootTarget.request() 
 				.get(); // Call get method
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
@@ -44,7 +54,7 @@ public class ArticleService {
 	}
 	public String getArticleById(String id) throws ParseException {
 		System.out.println("Test for cache redis:" + System.currentTimeMillis()/10000000);
-		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "q=_id:" + id);
+		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "q=" + id);
 		Response response = rootTarget.request().get();
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
 			JSONParser parser = new JSONParser();
@@ -63,12 +73,16 @@ public class ArticleService {
 		}
 	}
 
-	public String getListArticleByCategoryId(String from, String size, String categoryId) throws ParseException {
-		System.out.println("Test for cache redis:" + System.currentTimeMillis()/1000);
+	public String getListArticleByCategoryId(String from, String size, String categoryId, String timestamp) throws ParseException {
+		//System.out.println("Test for cache redis:" + System.currentTimeMillis()/1000);
 		String path = "";
 		try {
+			if (timestamp.equals("0")) {
+				Timestamp now = getTimeStampNow();
+				timestamp = String.valueOf(now.getTime());
+			}
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
-					+ "&q=display: " + Application.STATUS_DISPLAY +  " AND category.id:" + URLEncoder.encode(categoryId, "UTF-8");
+					+ "&q=display: " + Application.STATUS_DISPLAY +  " AND category.id:" + URLEncoder.encode(categoryId, "UTF-8") + " AND timestamp:[* TO " + timestamp + "]";
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -93,11 +107,16 @@ public class ArticleService {
 		}
 	}
 
-	public String getListArticleByCategoryName(String from, String size, String categoryName) throws ParseException {
+	public String getListArticleByCategoryName(String from, String size, String categoryName, String timestamp) throws ParseException {
 		String path = "";
 		try {
+			if (timestamp.equals("0")) {
+				Timestamp now = getTimeStampNow();
+				timestamp = String.valueOf(now.getTime());
+			}
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
-					+ "&q=display:" + Application.STATUS_DISPLAY + " AND category.name:" + URLEncoder.encode("\"" + categoryName + "\"", "UTF-8");
+					+ "&q=display:" + Application.STATUS_DISPLAY + " AND category.name:" +
+					URLEncoder.encode("\"" + categoryName + "\"", "UTF-8") + " AND timestamp:[* TO " + timestamp + "]";
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -122,7 +141,7 @@ public class ArticleService {
 		}
 	}
 
-	public String getListArticleByTags(String from, String size, String tags) throws ParseException {
+	public String getListArticleByTags(String from, String size, String tags, String timestamp) throws ParseException {
 		WebTarget rootTarget = client
 				.target(Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc");
 		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
@@ -145,7 +164,7 @@ public class ArticleService {
 		}
 	}
 
-	public String getListArticlReleatedTags(String tags, String number) throws ParseException {
+	public String getListArticlReleatedTags(String tags, String number, String timestamp) throws ParseException {
 		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "&size=" + number + "&sort=time_post:desc");
 		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
 		Response response = rootTarget.request()
@@ -196,11 +215,15 @@ public class ArticleService {
 		}
 	}
 
-	public String getListArticleByStringInSource(String from, String size, String value) throws ParseException {
+	public String getListArticleByStringInSource(String from, String size, String value, String timestamp) throws ParseException {
 		String path = "";
 		try {
+			if (timestamp.equals("0")) {
+				Timestamp now = getTimeStampNow();
+				timestamp = String.valueOf(now.getTime());
+			}
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=display:"+Application.STATUS_DISPLAY+" AND source:"
-					+ URLEncoder.encode("\"" + value + "\"", "UTF-8");
+					+ URLEncoder.encode("\"" + value + "\"", "UTF-8") + " AND timestamp:[* TO " + timestamp + "]";
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

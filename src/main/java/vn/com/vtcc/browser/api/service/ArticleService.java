@@ -45,13 +45,13 @@ public class ArticleService {
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
 			msg = (JSONArray) json.get("hits");
-
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
 			} else{
 				return msg.toString();
 			}
 		} else {
+			client.close();
 			throw new DataNotFoundException("Articles not found");
 		}
 	}
@@ -74,6 +74,7 @@ public class ArticleService {
 				throw new DataNotFoundException("Article with id " + id + " not found");
 			}
 		} else {
+			client.close();
 			throw new DataNotFoundException("Article with id " + id + " not found");
 		}
 
@@ -110,6 +111,7 @@ public class ArticleService {
 				return msg.toString().toString();
 			}
 		} else {
+			client.close();
 			throw new DataNotFoundException("Articles not found");
 		}
 
@@ -147,6 +149,7 @@ public class ArticleService {
 				return msg.toString().toString();
 			}
 		} else {
+			client.close();
 			throw new DataNotFoundException("Articles not found");
 		}
 
@@ -172,6 +175,7 @@ public class ArticleService {
 				return msg.toString().toString();
 			}
 		} else {
+			client.close();
 			throw new DataNotFoundException("Articles not found");
 		}
 
@@ -261,6 +265,7 @@ public class ArticleService {
 				return msg.toString().toString();
 			}
 		} else {
+			client.close();
 			throw new DataNotFoundException("Articles not found");
 		}
 	}
@@ -290,6 +295,7 @@ public class ArticleService {
 				return msg.toString().toString();
 			}
 		} else {
+			client.close();
 			throw new DataNotFoundException("Tags not found");
 		}
 	}

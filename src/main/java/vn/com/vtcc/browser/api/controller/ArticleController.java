@@ -94,4 +94,10 @@ public class ArticleController {
 			throws org.json.simple.parser.ParseException {
 		return CategoryService.getCategoryFromDatabase();
 	}
+	@CrossOrigin
+	@RequestMapping(value = "/get_list_hot_tags", method = RequestMethod.GET, produces = "application/json")
+	public String getListHotTags()
+			throws org.json.simple.parser.ParseException {
+		return ArticleService.getListHotTags();
+	}
 }

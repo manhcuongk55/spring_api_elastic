@@ -16,11 +16,11 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import org.springframework.boot.ApplicationArguments;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
 
 public class ArticleService {
-
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
 	public static Timestamp getTimeStampNow() {
@@ -33,6 +33,7 @@ public class ArticleService {
 			Timestamp now = getTimeStampNow();
 			timestamp = String.valueOf(now.getTime());
 		}
+
 		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
 				.property(ClientProperties.READ_TIMEOUT, 1000)
 				.register(JacksonJsonProvider.class);

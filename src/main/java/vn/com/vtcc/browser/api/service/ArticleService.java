@@ -1,7 +1,9 @@
 package vn.com.vtcc.browser.api.service;
 
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -16,7 +18,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import org.springframework.boot.ApplicationArguments;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
 
@@ -60,24 +61,6 @@ public class ArticleService {
 		}
 	}
 
-	public String getSourceImage(JSONObject input) {
-		//JSONObject _source = (JSONObject) abc.get(0);
-
-		String result = "";
-		JSONArray object = (JSONArray) input.get("hits");
-		JSONObject hits = (JSONObject) object.get(0);
-		if (hits != null) {
-			JSONObject _source = (JSONObject) hits.get("_source");
-			if (_source != null){
-				String source = (String) _source.get("source");
-				if (source != null) {
-					result = Application.SOURCE_IMAGES.get(source);
-				}
-			}
-		}
-		return result;
-	}
-
 	public String getArticleById(String id) throws ParseException {
 		//System.out.println("Test for cache redis:" + System.currentTimeMillis()/10000000);
 		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
@@ -92,13 +75,7 @@ public class ArticleService {
 			JSONArray msg = new JSONArray();
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
-			String source_favicon = this.getSourceImage(json);
 			msg = (JSONArray) json.get("hits");
-			if (source_favicon != null && source_favicon != "") {
-				JSONObject hits = (JSONObject) msg.get(0);
-				JSONObject _source = (JSONObject) hits.get("_source");
-				_source.put("source_favicon", source_favicon);
-			}
 			client.close();
 			if (msg != null) {
 				return msg.toString().toString();

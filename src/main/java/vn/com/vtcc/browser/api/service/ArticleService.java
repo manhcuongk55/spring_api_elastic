@@ -27,13 +27,15 @@ public class ArticleService {
 		Timestamp now = new Timestamp(System.currentTimeMillis());
 		return now;
 	}
-	Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT).register(JacksonJsonProvider.class);
 
 	public String getListHotArticle(String from, String size, String timestamp) throws ParseException {
 		if (timestamp.equals("0")) {
 			Timestamp now = getTimeStampNow();
 			timestamp = String.valueOf(now.getTime());
 		}
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
+				.property(ClientProperties.READ_TIMEOUT, 1000)
+				.register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client
 				.target(Application.URL_ELASTICSEARCH  + "q=display:" + Application.STATUS_DISPLAY + " AND timestamp:[* TO " + timestamp + "]&from=" + from + "&size=" + size +  "&sort=time_post:desc");
 		Response response = rootTarget.request().get(); // Call get method
@@ -45,6 +47,7 @@ public class ArticleService {
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
 			msg = (JSONArray) json.get("hits");
+			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
 			} else{
@@ -55,8 +58,12 @@ public class ArticleService {
 			throw new DataNotFoundException("Articles not found");
 		}
 	}
+
 	public String getArticleById(String id) throws ParseException {
 		//System.out.println("Test for cache redis:" + System.currentTimeMillis()/10000000);
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
+				.property(ClientProperties.READ_TIMEOUT, 1000)
+				.register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "q=" + id);
 		Response response = rootTarget.request().get();
 
@@ -67,7 +74,7 @@ public class ArticleService {
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
 			msg = (JSONArray) json.get("hits");
-
+			client.close();
 			if (msg != null) {
 				return msg.toString().toString();
 			} else {
@@ -94,6 +101,9 @@ public class ArticleService {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
+				.property(ClientProperties.READ_TIMEOUT, 1000)
+				.register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client.target(path);
 		Response response = rootTarget.request().get(); // Call get method
 
@@ -104,7 +114,7 @@ public class ArticleService {
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
 			msg = (JSONArray) json.get("hits");
-
+			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
 			} else {
@@ -131,6 +141,9 @@ public class ArticleService {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
+				.property(ClientProperties.READ_TIMEOUT, 1000)
+				.register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client.target(path);
 		Response response = rootTarget.request().get(); // Call get method
 
@@ -141,8 +154,7 @@ public class ArticleService {
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
 			msg = (JSONArray) json.get("hits");
-
-
+			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
 			} else {
@@ -156,7 +168,9 @@ public class ArticleService {
 	}
 
 	public String getListArticleByTags(String from, String size, String tags, String timestamp) throws ParseException {
-
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
+				.property(ClientProperties.READ_TIMEOUT, 1000)
+				.register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client
 				.target(Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc");
 		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
@@ -169,6 +183,7 @@ public class ArticleService {
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
 			msg = (JSONArray) json.get("hits");
+			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
 			} else {
@@ -182,6 +197,9 @@ public class ArticleService {
 	}
 
 	public String getListArticlReleatedTags(String tags, String number, String timestamp) throws ParseException {
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
+				.property(ClientProperties.READ_TIMEOUT, 1000)
+				.register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "&size=" + number + "&sort=time_post:desc");
 		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
 		Response response = rootTarget.request().post(Entity.json(jsonObject));
@@ -193,13 +211,14 @@ public class ArticleService {
 				json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 				json = (JSONObject) parser.parse(json.get("hits").toString());
 				msg = (JSONArray) json.get("hits");
-
+				client.close();
 				if (msg == null) {
 					throw new DataNotFoundException("Articles not found");
 				} else {
 					return msg.toString().toString();
 				}
 			} else {
+				client.close();
 				throw new DataNotFoundException("Articles not found");
 			}
 
@@ -214,6 +233,9 @@ public class ArticleService {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
+				.property(ClientProperties.READ_TIMEOUT, 1000)
+				.register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client.target(path);
 		Response response = rootTarget.request().get();
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
@@ -223,13 +245,14 @@ public class ArticleService {
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
 			msg = (JSONArray) json.get("hits");
-
+			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
 			} else {
 				return msg.toString().toString();
 			}
 		} else {
+			client.close();
 			throw new DataNotFoundException("Articles not found");
 		}
 	}
@@ -247,7 +270,9 @@ public class ArticleService {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
+				.property(ClientProperties.READ_TIMEOUT, 1000)
+				.register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client.target(path);
 		Response response = rootTarget.request() 
 				.get();
@@ -258,7 +283,7 @@ public class ArticleService {
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
 			msg = (JSONArray) json.get("hits");
-
+			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
 			} else {
@@ -272,6 +297,9 @@ public class ArticleService {
 
 	public String getListHotTags() throws ParseException {
 		Timestamp now = getTimeStampNow();
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
+				.property(ClientProperties.READ_TIMEOUT, 1000)
+				.register(JacksonJsonProvider.class);
 		String timestamp_before = String.valueOf((now.getTime() - TIMESTAMP_DAY_BEFORE) / 1000);
 		String timestamp = String.valueOf(now.getTime());
 		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH);
@@ -288,7 +316,7 @@ public class ArticleService {
 			json = (JSONObject) parser.parse(json.get("aggregations").toString());
 			json = (JSONObject) json.get("hot_tags");
 			msg = (JSONArray) json.get("buckets");
-
+			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Tags not found");
 			} else {

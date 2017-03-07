@@ -13,6 +13,7 @@ import vn.com.vtcc.browser.api.model.Category;
 import vn.com.vtcc.browser.api.service.ArticleService;
 import vn.com.vtcc.browser.api.service.CategoryService;
 
+import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class ArticleController {
 	public String getListHotNews(@RequestParam(value = "from", defaultValue = "0") String from,
 			@RequestParam(value = "size", defaultValue = "20") String size,
 								 @RequestParam(value = "timestamp", defaultValue = "0") String timestamp)
-			throws org.json.simple.parser.ParseException {
+			throws org.json.simple.parser.ParseException, UnknownHostException {
 		return ArticleService.getListHotArticle(from, size, timestamp);
 	}
 	@CrossOrigin

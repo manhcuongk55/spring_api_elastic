@@ -26,11 +26,12 @@ public class Application extends WebMvcConfigurerAdapter {
 	//public static final String URL_ELASTICSEARCH = "http://192.168.107.231:9200/br_article_v4/article/_search?";
 	public static final String URL_GOOGLE = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=";
 	public static final String STATUS_DISPLAY = "1";
+	public static final String HOST_NAME = "http://news.safenet.vn/";
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/images/**")
-				.addResourceLocations("classpath:/images/");
+				.addResourceLocations("/resources/","classpath:/images/");
 	}
 
 	public static void main(String[] args) {

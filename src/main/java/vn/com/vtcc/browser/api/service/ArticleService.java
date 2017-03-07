@@ -48,7 +48,8 @@ public class ArticleService {
 			JSONArray msg = new JSONArray();
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = (JSONArray) json.get("hits");
+			msg = this.getSourceImage(json);
+			//msg = (JSONArray) json.get("hits");
 			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
@@ -59,6 +60,24 @@ public class ArticleService {
 			client.close();
 			throw new DataNotFoundException("Articles not found");
 		}
+	}
+
+	public JSONArray getSourceImage(JSONObject input) {
+		JSONArray results = (JSONArray) input.get("hits");
+		//String host = InetAddress.getLocalHost().getHostAddress();
+		if (results != null) {
+			for (int i =0; i < results.size(); i++) {
+				JSONObject hit = (JSONObject) results.get(i);
+				if (hit != null){
+					JSONObject _source = (JSONObject) hit.get("_source");
+					String source = (String) _source.get("source");
+					if (source != null) {
+						_source.put("source_favicon", Application.HOST_NAME + "images/" + source + ".png");
+					}
+				}
+			}
+		}
+		return results;
 	}
 
 	public String getArticleById(String id) throws ParseException {
@@ -115,7 +134,8 @@ public class ArticleService {
 			JSONArray msg = new JSONArray();
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = (JSONArray) json.get("hits");
+			msg = this.getSourceImage(json);
+			//msg = (JSONArray) json.get("hits");
 			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
@@ -155,7 +175,8 @@ public class ArticleService {
 			JSONArray msg = new JSONArray();
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = (JSONArray) json.get("hits");
+			msg = this.getSourceImage(json);
+			//msg = (JSONArray) json.get("hits");
 			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
@@ -184,7 +205,8 @@ public class ArticleService {
 			JSONArray msg = new JSONArray();
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = (JSONArray) json.get("hits");
+			msg = this.getSourceImage(json);
+			//msg = (JSONArray) json.get("hits");
 			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
@@ -212,7 +234,8 @@ public class ArticleService {
 				JSONArray msg = new JSONArray();
 				json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 				json = (JSONObject) parser.parse(json.get("hits").toString());
-				msg = (JSONArray) json.get("hits");
+				//msg = (JSONArray) json.get("hits");
+				msg = this.getSourceImage(json);
 				client.close();
 				if (msg == null) {
 					throw new DataNotFoundException("Articles not found");
@@ -246,7 +269,8 @@ public class ArticleService {
 			JSONArray msg = new JSONArray();
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = (JSONArray) json.get("hits");
+			msg = this.getSourceImage(json);
+			//msg = (JSONArray) json.get("hits");
 			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");
@@ -284,7 +308,8 @@ public class ArticleService {
 			JSONArray msg = new JSONArray();
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = (JSONArray) json.get("hits");
+			msg = this.getSourceImage(json);
+			//msg = (JSONArray) json.get("hits");
 			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");

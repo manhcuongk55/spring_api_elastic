@@ -48,8 +48,8 @@ public class ArticleService {
 			JSONArray msg = new JSONArray();
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
 			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = this.getSourceImage(json);
-			//msg = (JSONArray) json.get("hits");
+			//msg = this.getSourceImage(json);
+			msg = (JSONArray) json.get("hits");
 			client.close();
 			if (msg == null) {
 				throw new DataNotFoundException("Articles not found");

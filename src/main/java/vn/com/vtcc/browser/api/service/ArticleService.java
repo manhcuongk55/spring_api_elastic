@@ -34,7 +34,7 @@ public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
 	private Jedis jedis = new Jedis("localhost");
-	private String ES_FIELDS = "&_source_exclude=raw_content,canonical";
+
 
 	public static Timestamp getTimeStampNow() {
 		Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -46,6 +46,7 @@ public class ArticleService {
 			Timestamp now = getTimeStampNow();
 			timestamp = String.valueOf(now.getTime());
 		}
+		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
 
 		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
@@ -131,6 +132,7 @@ public class ArticleService {
 				Timestamp now = getTimeStampNow();
 				timestamp = String.valueOf(now.getTime());
 			}
+			String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
 					+ "&q=display: " + Application.STATUS_DISPLAY +  " AND category.id:"
@@ -174,6 +176,7 @@ public class ArticleService {
 				Timestamp now = getTimeStampNow();
 				timestamp = String.valueOf(now.getTime());
 			}
+			String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
 					+ "&q=display:" + Application.STATUS_DISPLAY + " AND category.name:" +
@@ -214,6 +217,7 @@ public class ArticleService {
 		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
 				.property(ClientProperties.READ_TIMEOUT, 1000)
 				.register(JacksonJsonProvider.class);
+		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
 		WebTarget rootTarget = client
 				.target(Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + ES_FIELDS);
@@ -245,6 +249,7 @@ public class ArticleService {
 		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
 				.property(ClientProperties.READ_TIMEOUT, 1000)
 				.register(JacksonJsonProvider.class);
+		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
 		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "&size=" + number + "&sort=time_post:desc" + ES_FIELDS);
 		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
@@ -273,6 +278,7 @@ public class ArticleService {
 
 	public String getListArticleByStringInTitle(String from, String size, String value, String connectivity) throws ParseException, UnknownHostException {
 		String path = "";
+		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
 		try {
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=display:"+Application.STATUS_DISPLAY+" AND title:"
@@ -313,6 +319,7 @@ public class ArticleService {
 				Timestamp now = getTimeStampNow();
 				timestamp = String.valueOf(now.getTime());
 			}
+			String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=display:"+Application.STATUS_DISPLAY+" AND source:"
 					+ URLEncoder.encode("\"" + value + "\"", "UTF-8") + " AND timestamp:[* TO " + timestamp + "]" + ES_FIELDS;

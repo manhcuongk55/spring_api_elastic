@@ -28,7 +28,7 @@ public class Application extends WebMvcConfigurerAdapter {
 	public static final String STATUS_DISPLAY = "1";
 	public static final String HOST_NAME = "http://news.safenet.vn/";
 	public static final String REDIS_KEY = "HOT_TAGS";
-	
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/images/**")

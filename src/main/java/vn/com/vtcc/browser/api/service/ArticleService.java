@@ -25,7 +25,7 @@ import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import redis.clients.jedis.Jedis;
+//import redis.clients.jedis.Jedis;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
 import vn.com.vtcc.browser.api.unitTest.UpdateRedisUnitTest;
@@ -34,7 +34,6 @@ public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
 	//private Jedis jedis = new Jedis("localhost");
-
 
 	public static Timestamp getTimeStampNow() {
 		Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -47,7 +46,7 @@ public class ArticleService {
 			timestamp = String.valueOf(now.getTime());
 		}
 		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
+		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url"; }
 
 		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
 				.property(ClientProperties.READ_TIMEOUT, 1000)
@@ -97,7 +96,6 @@ public class ArticleService {
 	}
 
 	public String getArticleById(String id) throws ParseException {
-		//System.out.println("Test for cache redis:" + System.currentTimeMillis()/10000000);
 		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
 				.property(ClientProperties.READ_TIMEOUT, 1000)
 				.register(JacksonJsonProvider.class);
@@ -134,7 +132,7 @@ public class ArticleService {
 				timestamp = String.valueOf(now.getTime());
 			}
 			String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
+			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url"; }
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
 					+ "&q=display: " + Application.STATUS_DISPLAY +  " AND category.id:"
 					+ URLEncoder.encode(categoryId, "UTF-8") + " AND timestamp:[* TO " + timestamp + "]"
@@ -178,7 +176,7 @@ public class ArticleService {
 				timestamp = String.valueOf(now.getTime());
 			}
 			String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
+			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url"; }
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
 					+ "&q=display:" + Application.STATUS_DISPLAY + " AND category.name:" +
 					URLEncoder.encode("\"" + categoryName + "\"", "UTF-8") + " AND timestamp:[* TO " + timestamp + "]"
@@ -219,7 +217,7 @@ public class ArticleService {
 				.property(ClientProperties.READ_TIMEOUT, 1000)
 				.register(JacksonJsonProvider.class);
 		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
+		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url"; }
 		WebTarget rootTarget = client
 				.target(Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + ES_FIELDS);
 		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
@@ -251,7 +249,7 @@ public class ArticleService {
 				.property(ClientProperties.READ_TIMEOUT, 1000)
 				.register(JacksonJsonProvider.class);
 		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
+		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url"; }
 		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "&size=" + number + "&sort=time_post:desc" + ES_FIELDS);
 		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
 		Response response = rootTarget.request().post(Entity.json(jsonObject));
@@ -280,7 +278,7 @@ public class ArticleService {
 	public String getListArticleByStringInTitle(String from, String size, String value, String connectivity) throws ParseException, UnknownHostException {
 		String path = "";
 		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
+		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url"; }
 		try {
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=display:"+Application.STATUS_DISPLAY+" AND title:"
 					+ URLEncoder.encode("\"" + value + "\"", "UTF-8") + ES_FIELDS;
@@ -321,7 +319,7 @@ public class ArticleService {
 				timestamp = String.valueOf(now.getTime());
 			}
 			String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source"; }
+			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url"; }
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=display:"+Application.STATUS_DISPLAY+" AND source:"
 					+ URLEncoder.encode("\"" + value + "\"", "UTF-8") + " AND timestamp:[* TO " + timestamp + "]" + ES_FIELDS;
 		} catch (UnsupportedEncodingException e1) {
@@ -387,7 +385,7 @@ public class ArticleService {
 	/*public ResponseEntity<Object> updateRedisHotTags(String input) {
 		if (input != "") {
 			try {
-				this.jedis.set(Application.REDIS_KEY, input);
+				listOps.leftPush("HOT_TAGS", input);
 				return ResponseEntity.ok("Update success");
 			} catch (Exception e) {
 				e.printStackTrace();

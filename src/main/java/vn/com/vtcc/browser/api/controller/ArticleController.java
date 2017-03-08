@@ -27,7 +27,7 @@ public class ArticleController {
 	CategoryService CategoryService = new CategoryService();
 	@CrossOrigin
 	@RequestMapping(value = "/get_article_id", method = RequestMethod.GET, produces = "application/json")
-	@Cacheable(cacheNames="getArticleById", key="#id")
+	//@Cacheable(cacheNames="getArticleById", key="#id")
 	public String getArticleById(
 			@RequestParam(value = "id", defaultValue = "596b8412b2c5fad54a4ee565a37e7baa") String id)
 			throws org.json.simple.parser.ParseException {

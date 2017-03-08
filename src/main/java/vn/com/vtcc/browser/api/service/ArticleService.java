@@ -353,12 +353,33 @@ public class ArticleService {
 		}
 	}
 
-	public ResponseEntity<Object> getListHotTags() throws ParseException {
-		String result = jedis.get(Application.REDIS_KEY);
-		if (result != "" && result != null) {
-			return ResponseEntity.ok(result);
+	public String getListHotTags() throws ParseException {
+		Timestamp now = getTimeStampNow();
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
+				.property(ClientProperties.READ_TIMEOUT, 1000) 				.register(JacksonJsonProvider.class);
+		String timestamp_before = String.valueOf((now.getTime() - TIMESTAMP_DAY_BEFORE) / 1000);
+		String timestamp = String.valueOf(now.getTime());
+		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH);
+		String jsonObject = "{\"query\": { \"bool\": { \"must\": [{ \"range\": {\"time_post\" : {\"gte\" : \""+timestamp_before+"\"}}}]}},\"size\": 0, \"aggregations\": {\"hot_tags\": {\"terms\": { \"field\": \"tags\"} }}}";
+		Response response = rootTarget.request()
+				.post(Entity.json(jsonObject));
+		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
+			JSONParser parser = new JSONParser();
+			JSONObject json = new JSONObject();
+			JSONArray msg = new JSONArray();
+			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
+			json = (JSONObject) parser.parse(json.get("aggregations").toString());
+			json = (JSONObject) json.get("hot_tags");
+			msg = (JSONArray) json.get("buckets");
+			client.close();
+			if (msg == null) {
+				throw new DataNotFoundException("Tags not found");
+			} else {
+				return msg.toString().toString();
+			}
 		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+			client.close();
+			throw new DataNotFoundException("Tags not found");
 		}
 	}
 

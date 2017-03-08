@@ -112,10 +112,10 @@ public class ArticleController {
 		return ArticleService.getListHotTags();
 	}
 
-	/*@CrossOrigin
+	@CrossOrigin
 	@RequestMapping(value = "/update_hot_tags", method = RequestMethod.POST)
 	public ResponseEntity<Object> updateRedisHotTags(@RequestBody String input)
 			throws org.json.simple.parser.ParseException {
 		return ArticleService.updateRedisHotTags(input);
-	}*/
+	}
 }

@@ -5,6 +5,8 @@ import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Resource;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -26,6 +28,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 //import redis.clients.jedis.Jedis;
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.JedisCluster;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
 import vn.com.vtcc.browser.api.unitTest.UpdateRedisUnitTest;
@@ -34,6 +38,19 @@ public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
 	//private Jedis jedis = new Jedis("localhost");
+	Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
+	JedisCluster jc = new JedisCluster(jedisClusterNodes);
+	//Jedis Cluster will attempt to discover cluster nodes automatically
+
+	public  ArticleService() {
+		this.jedisClusterNodes.add(new HostAndPort("192.168.107.201", 3001));
+		this.jedisClusterNodes.add(new HostAndPort("192.168.107.202", 3001));
+		this.jedisClusterNodes.add(new HostAndPort("192.168.107.203", 3001));
+		this.jedisClusterNodes.add(new HostAndPort("192.168.107.204", 3001));
+		this.jedisClusterNodes.add(new HostAndPort("192.168.107.205", 3001));
+		this.jedisClusterNodes.add(new HostAndPort("192.168.107.206", 3001));
+		this.jc = new JedisCluster(this.jedisClusterNodes);
+	}
 
 	public static Timestamp getTimeStampNow() {
 		Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -382,16 +399,16 @@ public class ArticleService {
 		}
 	}
 
-	/*public ResponseEntity<Object> updateRedisHotTags(String input) {
+	public ResponseEntity<Object> updateRedisHotTags(String input) {
 		if (input != "") {
 			try {
-				listOps.leftPush("HOT_TAGS", input);
+				this.jc.set("HOT_TAGS", input);
 				return ResponseEntity.ok("Update success");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-	}*/
+	}
 
 }

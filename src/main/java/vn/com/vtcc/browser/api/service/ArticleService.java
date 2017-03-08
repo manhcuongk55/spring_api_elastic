@@ -33,7 +33,7 @@ import vn.com.vtcc.browser.api.unitTest.UpdateRedisUnitTest;
 public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
-	private Jedis jedis = new Jedis("localhost");
+	//private Jedis jedis = new Jedis("localhost");
 
 
 	public static Timestamp getTimeStampNow() {
@@ -101,7 +101,8 @@ public class ArticleService {
 		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
 				.property(ClientProperties.READ_TIMEOUT, 1000)
 				.register(JacksonJsonProvider.class);
-		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "q=" + id);
+		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
+		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "q=" + id + ES_FIELDS);
 		Response response = rootTarget.request().get();
 
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
@@ -383,7 +384,7 @@ public class ArticleService {
 		}
 	}
 
-	public ResponseEntity<Object> updateRedisHotTags(String input) {
+	/*public ResponseEntity<Object> updateRedisHotTags(String input) {
 		if (input != "") {
 			try {
 				this.jedis.set(Application.REDIS_KEY, input);
@@ -393,6 +394,6 @@ public class ArticleService {
 			}
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-	}
+	}*/
 
 }

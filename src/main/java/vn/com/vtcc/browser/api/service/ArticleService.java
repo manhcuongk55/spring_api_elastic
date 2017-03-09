@@ -402,7 +402,7 @@ public class ArticleService {
 	public ResponseEntity<Object> updateRedisHotTags(String input) {
 		if (input != "") {
 			try {
-				this.jc.set("HOT_TAGS", input);
+				this.jc.set(Application.REDIS_KEY, input);
 				return ResponseEntity.ok("Update success");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -411,4 +411,15 @@ public class ArticleService {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 	}
 
+	public ResponseEntity<Object> getHotTags() {
+		try {
+			String tags = this.jc.get(Application.REDIS_KEY);
+			if (tags != null) {
+				return ResponseEntity.ok(tags);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	}
 }

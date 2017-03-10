@@ -7,7 +7,6 @@ import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
-import javax.annotation.Resource;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -21,28 +20,21 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import redis.clients.jedis.Jedis;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
-import vn.com.vtcc.browser.api.unitTest.UpdateRedisUnitTest;
 
 public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
-	//private Jedis jedis = new Jedis("localhost");
 	Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 	JedisCluster jc = new JedisCluster(jedisClusterNodes);
-	//Jedis Cluster will attempt to discover cluster nodes automatically
 
-	public  ArticleService() {
+
+	public ArticleService() {
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.201", 3001));
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.202", 3001));
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.203", 3001));
@@ -64,10 +56,7 @@ public class ArticleService {
 		}
 		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
-
-		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
-				.property(ClientProperties.READ_TIMEOUT, 1000)
-				.register(JacksonJsonProvider.class);
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT,CONNECTION_TIMEOUT).register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client
 				.target(Application.URL_ELASTICSEARCH  + "q=display:" + Application.STATUS_DISPLAY
 						+ " AND timestamp:[* TO " + timestamp + "]&from=" + from + "&size=" + size
@@ -104,7 +93,7 @@ public class ArticleService {
 					JSONObject _source = (JSONObject) hit.get("_source");
 					String source = (String) _source.get("source");
 					if (source != null) {
-						_source.put("source_favicon", "http://" + host + "/images/" + source + ".png");
+						_source.put("source_favicon", Application.HOST_NAME + "/images/" + source + ".png");
 					}
 				}
 			}

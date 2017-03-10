@@ -38,9 +38,10 @@ public class ArticleController {
 	public String getListHotNews(@RequestParam(value = "from", defaultValue = "0") String from,
 			@RequestParam(value = "size", defaultValue = "20") String size,
 								 @RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
+								 @RequestParam(value = "source", defaultValue = "*") String source,
 								 @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
-		return ArticleService.getListHotArticle(from, size, timestamp, connectivity);
+		return ArticleService.getListHotArticle(from, size, timestamp, source, connectivity);
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_categoryId", method = RequestMethod.GET, produces = "application/json")
@@ -48,9 +49,10 @@ public class ArticleController {
 			@RequestParam(value = "size", defaultValue = "20") String size,
 			@RequestParam(value = "categoryId", defaultValue = "0") String categoryId,
 										   @RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
+										   @RequestParam(value = "source", defaultValue = "*") String source,
 										   @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
-		return ArticleService.getListArticleByCategoryId(from, size, categoryId,timestamp, connectivity);
+		return ArticleService.getListArticleByCategoryId(from, size, categoryId,timestamp, source, connectivity);
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_categoryName", method = RequestMethod.GET, produces = "application/json")
@@ -58,9 +60,10 @@ public class ArticleController {
 			@RequestParam(value = "size", defaultValue = "20") String size,
 			@RequestParam(value = "categoryName", defaultValue = "a") String categoryName,
 												@RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
+												@RequestParam(value = "source", defaultValue = "*") String source,
 												@RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
-		return ArticleService.getListArticleByCategoryName(from, size, categoryName, timestamp, connectivity);
+		return ArticleService.getListArticleByCategoryName(from, size, categoryName, timestamp,source, connectivity);
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_tags", method = RequestMethod.GET, produces = "application/json")
@@ -68,26 +71,29 @@ public class ArticleController {
 			@RequestParam(value = "size", defaultValue = "20") String size,
 			@RequestParam(value = "tags", defaultValue = "a") String tags,
 										@RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
+										@RequestParam(value = "source", defaultValue = "*") String source,
 										@RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
-		return ArticleService.getListArticleByTags(from, size, tags,timestamp, connectivity);
+		return ArticleService.getListArticleByTags(from, size, tags,timestamp,source, connectivity);
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_related_tags", method = RequestMethod.GET, produces = "application/json")
 	public String getListArticlReleatedTags(@RequestParam(value = "tags", defaultValue = "a") String tags,
 			@RequestParam(value = "number", defaultValue = "4") String number,@RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
+											@RequestParam(value = "source", defaultValue = "*") String source,
 											@RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
-		return ArticleService.getListArticlReleatedTags(tags, number, timestamp, connectivity);
+		return ArticleService.getListArticlReleatedTags(tags, number, timestamp, source, connectivity);
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_tittle", method = RequestMethod.GET, produces = "application/json")
 	public String getListArticlSearchByTitle(@RequestParam(value = "from", defaultValue = "0") String from,
 			@RequestParam(value = "size", defaultValue = "20") String size,
 			@RequestParam(value = "title", defaultValue = "title") String title,
+											 @RequestParam(value = "source", defaultValue = "*") String source,
 											 @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
-		return ArticleService.getListArticleByStringInTitle(from, size, title, connectivity);
+		return ArticleService.getListArticleByStringInTitle(from, size, title, source, connectivity);
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_source", method = RequestMethod.GET, produces = "application/json")

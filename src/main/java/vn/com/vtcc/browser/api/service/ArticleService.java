@@ -7,7 +7,6 @@ import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
-import javax.annotation.Resource;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -21,28 +20,22 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import redis.clients.jedis.Jedis;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
-import vn.com.vtcc.browser.api.unitTest.UpdateRedisUnitTest;
+import vn.com.vtcc.browser.api.utils.TextUtils;
 
 public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
-	//private Jedis jedis = new Jedis("localhost");
 	Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 	JedisCluster jc = new JedisCluster(jedisClusterNodes);
-	//Jedis Cluster will attempt to discover cluster nodes automatically
 
-	public  ArticleService() {
+
+	public ArticleService() {
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.201", 3001));
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.202", 3001));
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.203", 3001));
@@ -57,20 +50,17 @@ public class ArticleService {
 		return now;
 	}
 
-	public String getListHotArticle(String from, String size, String timestamp, String connectivity) throws ParseException, UnknownHostException {
+	public String getListHotArticle(String from, String size, String timestamp,String source, String connectivity) throws ParseException, UnknownHostException {
 		if (timestamp.equals("0")) {
 			Timestamp now = getTimeStampNow();
 			timestamp = String.valueOf(now.getTime());
 		}
 		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
-
-		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
-				.property(ClientProperties.READ_TIMEOUT, 1000)
-				.register(JacksonJsonProvider.class);
+		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT,CONNECTION_TIMEOUT).register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client
 				.target(Application.URL_ELASTICSEARCH  + "q=display:" + Application.STATUS_DISPLAY
-						+ " AND timestamp:[* TO " + timestamp + "]&from=" + from + "&size=" + size
+						+ " AND timestamp:[* TO " + timestamp + "]" + " AND source:" + source + "&from=" + from + "&size=" + size
 						+  "&sort=time_post:desc" + ES_FIELDS);
 		Response response = rootTarget.request().get(); // Call get method
 
@@ -104,7 +94,7 @@ public class ArticleService {
 					JSONObject _source = (JSONObject) hit.get("_source");
 					String source = (String) _source.get("source");
 					if (source != null) {
-						_source.put("source_favicon", "http://" + host + "/images/" + source + ".png");
+						_source.put("source_favicon", Application.HOST_NAME + "/images/" + source + ".png");
 					}
 				}
 			}
@@ -140,7 +130,7 @@ public class ArticleService {
 
 	}
 
-	public String getListArticleByCategoryId(String from, String size, String categoryId, String timestamp, String connectivity) throws ParseException, UnknownHostException {
+	public String getListArticleByCategoryId(String from, String size, String categoryId, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
 		//System.out.println("Test for cache redis:" + System.currentTimeMillis()/1000);
 		String path = "";
 		try {
@@ -152,7 +142,7 @@ public class ArticleService {
 			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url"; }
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
 					+ "&q=display: " + Application.STATUS_DISPLAY +  " AND category.id:"
-					+ URLEncoder.encode(categoryId, "UTF-8") + " AND timestamp:[* TO " + timestamp + "]"
+					+ URLEncoder.encode(categoryId, "UTF-8") + " AND timestamp:[* TO " + timestamp + "] AND source:" + source
 					+ ES_FIELDS;
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
@@ -185,7 +175,7 @@ public class ArticleService {
 
 	}
 
-	public String getListArticleByCategoryName(String from, String size, String categoryName, String timestamp, String connectivity) throws ParseException, UnknownHostException {
+	public String getListArticleByCategoryName(String from, String size, String categoryName, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
 		String path = "";
 		try {
 			if (timestamp.equals("0")) {
@@ -196,7 +186,7 @@ public class ArticleService {
 			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
 					+ "&q=display:" + Application.STATUS_DISPLAY + " AND category.name:" +
-					URLEncoder.encode("\"" + categoryName + "\"", "UTF-8") + " AND timestamp:[* TO " + timestamp + "]"
+					URLEncoder.encode("\"" + categoryName + "\"", "UTF-8") + " AND timestamp:[* TO " + timestamp + "] AND source:" + source
 					+ ES_FIELDS;
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
@@ -229,7 +219,7 @@ public class ArticleService {
 
 	}
 
-	public String getListArticleByTags(String from, String size, String tags, String timestamp, String connectivity) throws ParseException, UnknownHostException {
+	public String getListArticleByTags(String from, String size, String tags, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
 		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
 				.property(ClientProperties.READ_TIMEOUT, 1000)
 				.register(JacksonJsonProvider.class);
@@ -237,7 +227,18 @@ public class ArticleService {
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
 		WebTarget rootTarget = client
 				.target(Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + ES_FIELDS);
-		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
+		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [" +
+				" {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}," +
+				" {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
+		if (source != "*") {
+			String[] sources = source.split(",");
+			String sources_concated = TextUtils.concat_strings(sources);
+			jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [" +
+					" {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}," +
+					" {\"terms\" : {\"source\" : [" + sources_concated + "]}}," +
+					" {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
+		}
+
 		Response response = rootTarget.request().post(Entity.json(jsonObject));
 
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
@@ -261,7 +262,7 @@ public class ArticleService {
 
 	}
 
-	public String getListArticlReleatedTags(String tags, String number, String timestamp, String connectivity) throws ParseException, UnknownHostException {
+	public String getListArticlReleatedTags(String tags, String number, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
 		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
 				.property(ClientProperties.READ_TIMEOUT, 1000)
 				.register(JacksonJsonProvider.class);
@@ -269,6 +270,15 @@ public class ArticleService {
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
 		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "&size=" + number + "&sort=time_post:desc" + ES_FIELDS);
 		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
+		if (source != "*") {
+			String[] sources = source.split(",");
+			String sources_concated = TextUtils.concat_strings(sources);
+			jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [" +
+					" {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}," +
+					" {\"terms\" : {\"source\" : [" + sources_concated + "]}}," +
+					" {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
+		}
+
 		Response response = rootTarget.request().post(Entity.json(jsonObject));
 
 			if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
@@ -292,13 +302,13 @@ public class ArticleService {
 
 	}
 
-	public String getListArticleByStringInTitle(String from, String size, String value, String connectivity) throws ParseException, UnknownHostException {
+	public String getListArticleByStringInTitle(String from, String size, String value, String source, String connectivity) throws ParseException, UnknownHostException {
 		String path = "";
 		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
 		try {
 			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=display:"+Application.STATUS_DISPLAY+" AND title:"
-					+ URLEncoder.encode("\"" + value + "\"", "UTF-8") + ES_FIELDS;
+					+ URLEncoder.encode("\"" + value + "\"", "UTF-8") + " AND source:" + source + ES_FIELDS;
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

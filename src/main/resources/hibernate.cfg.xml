@@ -22,5 +22,6 @@
 		<property name="show_sql">true</property>
 		<mapping class="vn.com.vtcc.browser.api.model.User" />
 		<mapping class="vn.com.vtcc.browser.api.model.Category" />
+		<mapping class="vn.com.vtcc.browser.api.model.Source" />
 	</session-factory>
 </hibernate-configuration>

@@ -20,7 +20,7 @@ public class SourceService {
         Session session = factory.getCurrentSession();
         try {
             session.getTransaction().begin();
-            String sql = "Select e from " + Source.class.getName() + " e " + " order by e.id";
+            String sql = "Select e from " + Source.class.getName() + " e " + " where e.status='1' order by e.id";
             @SuppressWarnings("unchecked")
             Query<Source> query = session.createQuery(sql);
             sources = query.getResultList();
@@ -28,6 +28,8 @@ public class SourceService {
         } catch (Exception e) {
             e.printStackTrace();
             session.getTransaction().rollback();
+        } finally {
+            session.close();
         }
         return sources;
     }

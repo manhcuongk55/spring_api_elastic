@@ -86,7 +86,7 @@ public class ArticleService {
 
 	public JSONArray getSourceImage(JSONObject input) throws UnknownHostException {
 		JSONArray results = (JSONArray) input.get("hits");
-		String host = InetAddress.getLocalHost().getHostAddress();
+		//String host = InetAddress.getLocalHost().getHostAddress();
 		if (results != null) {
 			for (int i =0; i < results.size(); i++) {
 				JSONObject hit = (JSONObject) results.get(i);
@@ -94,7 +94,7 @@ public class ArticleService {
 					JSONObject _source = (JSONObject) hit.get("_source");
 					String source = (String) _source.get("source");
 					if (source != null) {
-						_source.put("source_favicon", Application.HOST_NAME + "/images/" + source + ".png");
+						_source.put("source_favicon", Application.MEDIA_HOST_NAME + "/images/" + source + ".png");
 					}
 				}
 			}
@@ -230,7 +230,8 @@ public class ArticleService {
 		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [" +
 				" {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}," +
 				" {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
-		if (source != "*") {
+
+		if (!source.equals("*")) {
 			String[] sources = source.split(",");
 			String sources_concated = TextUtils.concat_strings(sources);
 			jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [" +
@@ -238,7 +239,6 @@ public class ArticleService {
 					" {\"terms\" : {\"source\" : [" + sources_concated + "]}}," +
 					" {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
 		}
-
 		Response response = rootTarget.request().post(Entity.json(jsonObject));
 
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
@@ -270,7 +270,7 @@ public class ArticleService {
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
 		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "&size=" + number + "&sort=time_post:desc" + ES_FIELDS);
 		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
-		if (source != "*") {
+		if (!source.equals("*")) {
 			String[] sources = source.split(",");
 			String sources_concated = TextUtils.concat_strings(sources);
 			jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [" +

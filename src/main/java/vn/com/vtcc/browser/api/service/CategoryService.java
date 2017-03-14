@@ -26,6 +26,8 @@ public class CategoryService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			session.getTransaction().rollback();
+		} finally {
+			session.close();
 		}
 		return categories;
 	}

@@ -11,6 +11,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import vn.com.vtcc.browser.api.model.Category;
+import vn.com.vtcc.browser.api.model.Source;
+import vn.com.vtcc.browser.api.service.CategoryService;
+import vn.com.vtcc.browser.api.service.SourceService;
+
+import java.util.List;
 
 @SpringBootApplication
 @ComponentScan
@@ -27,7 +33,8 @@ public class Application extends WebMvcConfigurerAdapter {
 	//public static final String HOST_NAME = "http://news.safenet.vn/";
 	public static final String MEDIA_HOST_NAME = "http://media.sfive.vn/";
 	public static final String REDIS_KEY = "HOT_TAGS";
-
+	//public static String CATEGORIES = CategoryService.getCategoryFromDatabase();
+	//public static List<Source> SOURCES = SourceService.getSourcesFromDatabase();
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {

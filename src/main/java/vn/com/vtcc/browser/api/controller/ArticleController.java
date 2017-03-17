@@ -107,7 +107,7 @@ public class ArticleController {
 
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_categories", method = RequestMethod.GET, produces = "application/json")
-	public List<Category> getListCategories()
+	public String getListCategories()
 			throws org.json.simple.parser.ParseException {
 		return CategoryService.getCategoryFromDatabase();
 	}

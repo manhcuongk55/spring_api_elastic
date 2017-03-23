@@ -11,6 +11,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import vn.com.vtcc.browser.api.model.Category;
+import vn.com.vtcc.browser.api.model.Source;
+import vn.com.vtcc.browser.api.service.CategoryService;
+import vn.com.vtcc.browser.api.service.SourceService;
+
+import java.util.List;
 
 @SpringBootApplication
 @ComponentScan
@@ -24,16 +30,20 @@ public class Application extends WebMvcConfigurerAdapter {
 	//public static final String URL_ELASTICSEARCH = "http://192.168.107.231:9200/br_article_v4/article/_search?";
 	public static final String URL_GOOGLE = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=";
 	public static final String STATUS_DISPLAY = "1";
-	public static final String HOST_NAME = "http://news.safenet.vn/";
+	//public static final String HOST_NAME = "http://news.safenet.vn/";
+	public static final String MEDIA_HOST_NAME = "http://media.sfive.vn/";
 	public static final String REDIS_KEY = "HOT_TAGS";
-
+	//public static String CATEGORIES = CategoryService.getCategoryFromDatabase();
+	//public static List<Source> SOURCES = SourceService.getSourcesFromDatabase();
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/images/**")
-				.addResourceLocations("/resources/","classpath:/images/");
-		registry.addResourceHandler("/logos/**")
-				.addResourceLocations("/resources/","classpath:/logos/");
+		registry.addResourceHandler("/site_logos/**")
+				.addResourceLocations("/resources/","classpath:/site_logos/");
+		registry.addResourceHandler("/source_logos/**")
+				.addResourceLocations("/resources/","classpath:/source_logos/");
+		registry.addResourceHandler("/source_logos_favicon/**")
+				.addResourceLocations("/resources/","classpath:/source_logos_favicon/");
 	}
 
 	public static void main(String[] args) {

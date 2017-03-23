@@ -17,7 +17,7 @@ public class SourceController {
     SourceService sourceService = new SourceService();
     @CrossOrigin
     @RequestMapping(value = "/get_sources", method = RequestMethod.GET, produces = "application/json")
-    public List<Source> getListSources()
+    public String getListSources()
             throws org.json.simple.parser.ParseException {
         return sourceService.getSourcesFromDatabase();
     }

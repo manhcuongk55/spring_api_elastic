@@ -1,19 +1,23 @@
 package vn.com.vtcc.browser.api.controller;
 
-import org.json.simple.JSONArray;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.apache.commons.io.IOUtils;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import vn.com.vtcc.browser.api.config.SiteConfig;
 import vn.com.vtcc.browser.api.model.Category;
 import vn.com.vtcc.browser.api.service.ArticleService;
 import vn.com.vtcc.browser.api.service.CategoryService;
 
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -130,5 +134,18 @@ public class ArticleController {
 	public ResponseEntity<Object> getHotTags()
 			throws org.json.simple.parser.ParseException {
 		return ArticleService.getHotTags();
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/fallback_image", method = RequestMethod.GET)
+	public void getImageFromByteArray(@RequestParam String input, HttpServletResponse response) throws IOException {
+		System.out.println("===================> Displaying: " +input);
+		URLConnection conn = new URL(input).openConnection();
+		conn.setConnectTimeout(5000);
+		conn.setReadTimeout(5000);
+
+		InputStream in = conn.getInputStream();
+		response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+		IOUtils.copy(in, response.getOutputStream());
 	}
 }

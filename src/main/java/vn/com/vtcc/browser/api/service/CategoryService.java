@@ -48,7 +48,7 @@ public class CategoryService {
 				categories = query.getResultList();;
 				strCate = gson.toJson(categories);
 				this.jc.set("CATEGORIES", strCate);
-				this.jc.expire("CATEGORIES", 300);
+				this.jc.expire("CATEGORIES", 600);
 				session.getTransaction().commit();
 			} catch (Exception e) {
 				e.printStackTrace();

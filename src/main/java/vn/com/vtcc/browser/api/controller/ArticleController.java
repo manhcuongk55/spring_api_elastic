@@ -12,6 +12,7 @@ import vn.com.vtcc.browser.api.service.CategoryService;
 
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -138,14 +139,18 @@ public class ArticleController {
 
 	@CrossOrigin
 	@RequestMapping(value = "/fallback_image", method = RequestMethod.GET)
-	public void getImageFromByteArray(@RequestParam String input, HttpServletResponse response) throws IOException {
+	public void getImageFromByteArray(@RequestParam String input, HttpServletResponse response) {
 		System.out.println("===================> Displaying: " +input);
-		URLConnection conn = new URL(input).openConnection();
-		conn.setConnectTimeout(5000);
-		conn.setReadTimeout(5000);
+		try {
+			URLConnection conn = new URL(input).openConnection();
+			conn.setConnectTimeout(5000);
+			conn.setReadTimeout(5000);
 
-		InputStream in = conn.getInputStream();
-		response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-		IOUtils.copy(in, response.getOutputStream());
+			InputStream in = conn.getInputStream();
+			response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+			IOUtils.copy(in, response.getOutputStream());
+		} catch (IOException e) {
+			System.out.println("================> Their server not returning image: " +input);
+		}
 	}
 }

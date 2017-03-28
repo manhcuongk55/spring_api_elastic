@@ -47,7 +47,7 @@ public class SourceService {
                 sources = query.getResultList();
                 strSources = gson.toJson(sources);
                 this.jc.set("SOURCES", strSources);
-                this.jc.expire("SOURCES", 300);
+                this.jc.expire("SOURCES", 600);
                 session.getTransaction().commit();
             } catch (Exception e) {
                 e.printStackTrace();

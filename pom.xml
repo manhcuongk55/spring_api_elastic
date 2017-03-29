@@ -149,6 +149,11 @@
 			<version>1.4.2.RELEASE</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.mobile</groupId>
+			<artifactId>spring-mobile-device</artifactId>
+		</dependency>
+
 		<!-- Spring redis framework -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>

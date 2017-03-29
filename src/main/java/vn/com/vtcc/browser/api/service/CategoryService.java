@@ -42,7 +42,7 @@ public class CategoryService {
 			Session session = factory.getCurrentSession();
 			try {
 				session.getTransaction().begin();
-				String sql = "Select e from " + Category.class.getName() + " e " + " order by e.id";
+				String sql = "Select e from " + Category.class.getName() + " e " + " where e.status='1' order by e.id";
 				@SuppressWarnings("unchecked")
 				Query<Category> query = session.createQuery(sql);
 				categories = query.getResultList();;

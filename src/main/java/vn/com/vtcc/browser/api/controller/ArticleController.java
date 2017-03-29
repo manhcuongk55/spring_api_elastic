@@ -8,15 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.DevicePlatform;
 import org.springframework.web.bind.annotation.*;
 
+import sun.misc.BASE64Decoder;
 import vn.com.vtcc.browser.api.service.ArticleService;
 import vn.com.vtcc.browser.api.service.CategoryService;
 
 import javax.servlet.http.HttpServletResponse;
-import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -256,17 +255,28 @@ public class ArticleController {
 		}
 	}
 	@RequestMapping(value = "/fallback_image", method = RequestMethod.POST)
-	public void postImageFromByteArray(@RequestBody String input, HttpServletResponse response) {
+	public void postImageFromByteArray(@RequestBody String input, HttpServletResponse response) throws IOException {
 		System.out.println("===================> Displaying: " +input);
 		try {
-			URLConnection conn = new URL(input).openConnection();
-			conn.setConnectTimeout(5000);
-			conn.setReadTimeout(5000);
-
-			InputStream in = conn.getInputStream();
 			response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-			IOUtils.copy(in, response.getOutputStream());
-		} catch (IOException e) {
+			if (input.contains("base64")) {
+				String[] image_str = input.split(",");
+				if (image_str[1] != null) {
+					System.out.println("===================> Image is in base64 format");
+					byte[] imageByte;
+					BASE64Decoder decoder = new BASE64Decoder();
+					imageByte = decoder.decodeBuffer(image_str[1]);
+					ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
+					IOUtils.copy(bis, response.getOutputStream());
+				}
+			} else {
+				URLConnection conn = new URL(input).openConnection();
+				conn.setConnectTimeout(5000);
+				conn.setReadTimeout(5000);
+				InputStream in = conn.getInputStream();
+				IOUtils.copy(in, response.getOutputStream());
+			}
+		} catch (SocketTimeoutException e) {
 			System.out.println("================> Their server not returning image: " +input);
 		}
 	}

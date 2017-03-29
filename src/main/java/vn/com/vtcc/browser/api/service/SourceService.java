@@ -32,8 +32,15 @@ public class SourceService {
         this.jc = new JedisCluster(this.jedisClusterNodes);
     }
 
-    public String getSourcesFromDatabase() {
-        String strSources = this.jc.get("SOURCES");
+    public String getSourcesFromDatabase(String whitelist_source) {
+        String redisName = "SOURCES";
+        String sql = "Select e from " + Source.class.getName() + " e " + " where e.status='1' order by e.id";
+        if (!whitelist_source.equals("*")) {
+            redisName = "SOURCES_IOS";
+            sql = "Select e from " + Source.class.getName() + " e " + " where e.status='1' and e.name in (" + whitelist_source + ") order by e.id";
+        }
+
+        String strSources = this.jc.get(redisName);
         Gson gson = new Gson();
         if (strSources == null) {
             List<Source> sources = new ArrayList<>();
@@ -41,13 +48,11 @@ public class SourceService {
             Session session = factory.getCurrentSession();
             try {
                 session.getTransaction().begin();
-                String sql = "Select e from " + Source.class.getName() + " e " + " where e.status='1' order by e.id";
-                @SuppressWarnings("unchecked")
                 Query<Source> query = session.createQuery(sql);
                 sources = query.getResultList();
                 strSources = gson.toJson(sources);
-                this.jc.set("SOURCES", strSources);
-                this.jc.expire("SOURCES", 600);
+                this.jc.set(redisName, strSources);
+                this.jc.expire(redisName, 600);
                 session.getTransaction().commit();
             } catch (Exception e) {
                 e.printStackTrace();

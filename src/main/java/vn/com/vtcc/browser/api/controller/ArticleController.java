@@ -21,6 +21,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import org.springframework.mobile.device.Device;
+import vn.com.vtcc.browser.api.utils.UrlUtils;
 
 @RestController
 public class ArticleController {
@@ -41,22 +42,20 @@ public class ArticleController {
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_hot_article", method = RequestMethod.GET, produces = "application/json")
 	public String getListHotNews(@RequestParam(value = "from", defaultValue = "0") String from,
-			@RequestParam(value = "size", defaultValue = "20") String size,
+								 @RequestParam(value = "size", defaultValue = "20") String size,
 								 @RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
 								 @RequestParam(value = "source", defaultValue = WHITELIST_SOURCE) String source,
 								 @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		return ArticleService.getListHotArticle(from, size, timestamp, source, connectivity);
 	}
-
-	@CrossOrigin
 	@RequestMapping(value = "/list_hot_article", method = RequestMethod.POST, produces = "application/json")
 	public String postListHotNews(@RequestBody JSONObject input)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		String from = input.get("from") == null ? "0" : input.get("from").toString();
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
 		String timestamp = input.get("timestamp") == null ? "0" : input.get("size").toString();
-		String source = input.get("source") == null ? WHITELIST_SOURCE : input.get("size").toString();
+		String source = input.get("source") == null ? WHITELIST_SOURCE : input.get("source").toString();
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 
 		return ArticleService.getListHotArticle(from, size, timestamp, source, connectivity);
@@ -66,8 +65,8 @@ public class ArticleController {
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_categoryId", method = RequestMethod.GET, produces = "application/json")
 	public String getListArticlesByCategor(@RequestParam(value = "from", defaultValue = "0") String from,
-			@RequestParam(value = "size", defaultValue = "20") String size,
-			@RequestParam(value = "categoryId", defaultValue = "0") String categoryId,
+										   @RequestParam(value = "size", defaultValue = "20") String size,
+										   @RequestParam(value = "categoryId", defaultValue = "0") String categoryId,
 										   @RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
 										   @RequestParam(value = "source", defaultValue = WHITELIST_SOURCE) String source,
 										   @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
@@ -92,8 +91,8 @@ public class ArticleController {
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_categoryName", method = RequestMethod.GET, produces = "application/json")
 	public String getListArticlesByCategoryName(@RequestParam(value = "from", defaultValue = "0") String from,
-			@RequestParam(value = "size", defaultValue = "20") String size,
-			@RequestParam(value = "categoryName", defaultValue = "a") String categoryName,
+												@RequestParam(value = "size", defaultValue = "20") String size,
+												@RequestParam(value = "categoryName", defaultValue = "a") String categoryName,
 												@RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
 												@RequestParam(value = "source", defaultValue = WHITELIST_SOURCE) String source,
 												@RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
@@ -117,8 +116,8 @@ public class ArticleController {
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_tags", method = RequestMethod.GET, produces = "application/json")
 	public String getListArticlesByTags(@RequestParam(value = "from", defaultValue = "0") String from,
-			@RequestParam(value = "size", defaultValue = "20") String size,
-			@RequestParam(value = "tags", defaultValue = "a") String tags,
+										@RequestParam(value = "size", defaultValue = "20") String size,
+										@RequestParam(value = "tags", defaultValue = "a") String tags,
 										@RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
 										@RequestParam(value = "source", defaultValue = "*") String source,
 										@RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
@@ -142,7 +141,7 @@ public class ArticleController {
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_related_tags", method = RequestMethod.GET, produces = "application/json")
 	public String getListArticlReleatedTags(@RequestParam(value = "tags", defaultValue = "a") String tags,
-			@RequestParam(value = "number", defaultValue = "4") String number,@RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
+											@RequestParam(value = "number", defaultValue = "4") String number,@RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
 											@RequestParam(value = "source", defaultValue = "*") String source,
 											@RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
@@ -166,8 +165,8 @@ public class ArticleController {
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_tittle", method = RequestMethod.GET, produces = "application/json")
 	public String getListArticlSearchByTitle(@RequestParam(value = "from", defaultValue = "0") String from,
-			@RequestParam(value = "size", defaultValue = "20") String size,
-			@RequestParam(value = "title", defaultValue = "title") String title,
+											 @RequestParam(value = "size", defaultValue = "20") String size,
+											 @RequestParam(value = "title", defaultValue = "title") String title,
 											 @RequestParam(value = "source", defaultValue = WHITELIST_SOURCE) String source,
 											 @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
@@ -188,8 +187,8 @@ public class ArticleController {
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_source", method = RequestMethod.GET, produces = "application/json")
 	public String getListArticlSearchBySource(@RequestParam(value = "from", defaultValue = "0") String from,
-			@RequestParam(value = "size", defaultValue = "20") String size,
-			@RequestParam(value = "source", defaultValue = WHITELIST_SOURCE) String source,@RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
+											  @RequestParam(value = "size", defaultValue = "20") String size,
+											  @RequestParam(value = "source", defaultValue = WHITELIST_SOURCE) String source,@RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
 											  @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		return ArticleService.getListArticleByStringInSource(from, size, source,timestamp, connectivity);
@@ -241,15 +240,19 @@ public class ArticleController {
 	@CrossOrigin
 	@RequestMapping(value = "/fallback_image", method = RequestMethod.GET)
 	public void getImageFromByteArray(@RequestParam String input, HttpServletResponse response) {
-		System.out.println("===================> Displaying: " +input);
 		try {
-			URLConnection conn = new URL(input).openConnection();
-			conn.setConnectTimeout(5000);
-			conn.setReadTimeout(5000);
+			String parsedUrl = UrlUtils.convertToURLEscapingIllegalCharacters(input);
+			if (parsedUrl != null) {
+				System.out.println("===================> Displaying: " +parsedUrl);
+				URLConnection conn = new URL(parsedUrl).openConnection();
+				conn.setConnectTimeout(5000);
+				conn.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
+				conn.setReadTimeout(5000);
 
-			InputStream in = conn.getInputStream();
-			response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-			IOUtils.copy(in, response.getOutputStream());
+				InputStream in = conn.getInputStream();
+				response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+				IOUtils.copy(in, response.getOutputStream());
+			}
 		} catch (IOException e) {
 			System.out.println("================> Their server not returning image: " +input);
 		}

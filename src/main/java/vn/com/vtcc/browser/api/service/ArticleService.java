@@ -1,13 +1,21 @@
 package vn.com.vtcc.browser.api.service;
 
-import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.image.*;
+import org.apache.http.client.methods.RequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryBuilders.*;
 import java.io.*;
 import java.net.*;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import javax.imageio.ImageIO;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -15,6 +23,12 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.glassfish.jersey.client.ClientProperties;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -28,16 +42,31 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
+import vn.com.vtcc.browser.api.utils.ElasticsearchUtils;
 import vn.com.vtcc.browser.api.utils.TextUtils;
 
 public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
+	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source","url","tags","content"};
 	Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 	JedisCluster jc = new JedisCluster(jedisClusterNodes);
-
+	Settings settings = Settings.builder().put("cluster.name", "vbrowser")
+						.put("client.transport.sniff", true).build();
+	TransportClient esClient = new PreBuiltTransportClient(settings);
 
 	public ArticleService() {
+		try {
+			this.esClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.233"), 9300))
+                    	.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.232"), 9300))
+						.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.233"), 9300))
+						.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.234"), 9300))
+						.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.235"), 9300))
+						.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.236"), 9300));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.201", 3001));
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.202", 3001));
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.203", 3001));
@@ -52,38 +81,58 @@ public class ArticleService {
 		return now;
 	}
 
-	public String getListHotArticle(String from, String size, String timestamp,String source, String connectivity) throws ParseException, UnknownHostException {
-		if (timestamp.equals("0")) {
-			Timestamp now = getTimeStampNow();
-			timestamp = String.valueOf(now.getTime());
+	public String getListHotArticles(String from, String size, String timestamp,String source, String connectivity) throws ParseException, UnknownHostException {
+		List<String> sources = Arrays.asList(source.split(","));
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article").setSearchType(SearchType.QUERY_THEN_FETCH)
+									.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1)));
+		if (!sources.contains("*")) {
+			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
 		}
-		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
-		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT,CONNECTION_TIMEOUT).register(JacksonJsonProvider.class);
-		WebTarget rootTarget = client
-				.target(Application.URL_ELASTICSEARCH  + "q=display:" + Application.STATUS_DISPLAY
-						+ " AND timestamp:[* TO " + timestamp + "]" + " AND source:" + source + "&from=" + from + "&size=" + size
-						+  "&sort=time_post:desc" + ES_FIELDS);
-		Response response = rootTarget.request().get(); // Call get method
+		if (!connectivity.equals("wifi")) {
+			req.setFetchSource(WHITELIST_FIELDS,null);
+		}
+		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
+				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
 
-		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
-			JSONParser parser = new JSONParser();
-			JSONObject json = new JSONObject();
-			JSONArray msg = new JSONArray();
-			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
-			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = this.getSourceImage(json);
-			//msg = (JSONArray) json.get("hits");
-			client.close();
-			if (msg == null) {
-				throw new DataNotFoundException("Articles not found");
-			} else{
-				return msg.toString();
-			}
-		} else {
-			client.close();
-			throw new DataNotFoundException("Articles not found");
+		return ElasticsearchUtils.convertEsResultToString(response);
+	}
+
+	public String getListArticleByCatId(String from, String size, String categoryId, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
+		List<String> sources = Arrays.asList(source.split(","));
+
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setSearchType(SearchType.QUERY_THEN_FETCH)
+				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1))
+						.must(QueryBuilders.matchQuery("category.id", categoryId)));
+		if (!sources.contains("*")) {
+			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
 		}
+		if (!connectivity.equals("wifi")) {
+			req.setFetchSource(WHITELIST_FIELDS,null);
+		}
+		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
+				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
+
+		return ElasticsearchUtils.convertEsResultToString(response);
+	}
+
+	public String getListArticleByCatName(String from, String size, String categoryName, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
+		List<String> sources = Arrays.asList(source.split(","));
+
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setSearchType(SearchType.QUERY_THEN_FETCH)
+				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1))
+						.must(QueryBuilders.matchQuery("category.name", categoryName)));
+		if (!sources.contains("*")) {
+			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
+		}
+		if (!connectivity.equals("wifi")) {
+			req.setFetchSource(WHITELIST_FIELDS,null);
+		}
+		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
+				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
+
+		return ElasticsearchUtils.convertEsResultToString(response);
 	}
 
 	public JSONArray getSourceImage(JSONObject input) throws UnknownHostException {
@@ -104,204 +153,34 @@ public class ArticleService {
 		return results;
 	}
 
-	public String getArticleById(String id) throws ParseException {
-		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
-				.property(ClientProperties.READ_TIMEOUT, 1000)
-				.register(JacksonJsonProvider.class);
-		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "q=" + id + ES_FIELDS);
-		Response response = rootTarget.request().get();
-
-		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
-			JSONParser parser = new JSONParser();
-			JSONObject json = new JSONObject();
-			JSONArray msg = new JSONArray();
-			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
-			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = (JSONArray) json.get("hits");
-			client.close();
-			if (msg != null) {
-				return msg.toString().toString();
-			} else {
-				throw new DataNotFoundException("Article with id " + id + " not found");
-			}
-		} else {
-			client.close();
-			throw new DataNotFoundException("Article with id " + id + " not found");
-		}
-
+	public String getArticleByID(String id) {
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setSearchType(SearchType.QUERY_THEN_FETCH)
+				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("id", id)))
+				.setFetchSource(new String[] {"content", "title", "images", "snippet", "time_post","source", "tags", "author"},
+						new String[] {"raw_content", "canonical"});
+		SearchResponse response = req.execute().actionGet();
+		return ElasticsearchUtils.convertEsResultToString(response);
 	}
 
-	public String getListArticleByCategoryId(String from, String size, String categoryId, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
-		//System.out.println("Test for cache redis:" + System.currentTimeMillis()/1000);
-		String path = "";
-		try {
-			if (timestamp.equals("0")) {
-				Timestamp now = getTimeStampNow();
-				timestamp = String.valueOf(now.getTime());
-			}
-			String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url"; }
-			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
-					+ "&q=display: " + Application.STATUS_DISPLAY +  " AND category.id:"
-					+ URLEncoder.encode(categoryId, "UTF-8") + " AND timestamp:[* TO " + timestamp + "] AND source:" + source
-					+ ES_FIELDS;
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
-				.property(ClientProperties.READ_TIMEOUT, 1000)
-				.register(JacksonJsonProvider.class);
-		WebTarget rootTarget = client.target(path);
-		Response response = rootTarget.request().get(); // Call get method
-
-		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
-			JSONParser parser = new JSONParser();
-			JSONObject json = new JSONObject();
-			JSONArray msg = new JSONArray();
-			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
-			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = this.getSourceImage(json);
-			//msg = (JSONArray) json.get("hits");
-			client.close();
-			if (msg == null) {
-				throw new DataNotFoundException("Articles not found");
-			} else {
-				return msg.toString().toString();
-			}
-		} else {
-			client.close();
-			throw new DataNotFoundException("Articles not found");
+	public String getListArticleByTags(String from, String size, String inputTags, String timestamp, String source, String connectivity) {
+		List<String> sources = Arrays.asList(source.split(","));
+		List<String> tags = Arrays.asList(inputTags.split(","));
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setSearchType(SearchType.QUERY_THEN_FETCH)
+				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1)))
+				.setPostFilter(QueryBuilders.termsQuery("tags", tags));
+		if (!sources.contains("*")) {
+			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
 		}
 
-	}
-
-	public String getListArticleByCategoryName(String from, String size, String categoryName, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
-		String path = "";
-		try {
-			if (timestamp.equals("0")) {
-				Timestamp now = getTimeStampNow();
-				timestamp = String.valueOf(now.getTime());
-			}
-			String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
-			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
-					+ "&q=display:" + Application.STATUS_DISPLAY + " AND category.name:" +
-					URLEncoder.encode("\"" + categoryName + "\"", "UTF-8") + " AND timestamp:[* TO " + timestamp + "] AND source:" + source
-					+ ES_FIELDS;
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		if (!connectivity.equals("wifi")) {
+			req.setFetchSource(WHITELIST_FIELDS,null);
 		}
-		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
-				.property(ClientProperties.READ_TIMEOUT, 1000)
-				.register(JacksonJsonProvider.class);
-		WebTarget rootTarget = client.target(path);
-		Response response = rootTarget.request().get(); // Call get method
+		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
+				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
 
-		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
-			JSONParser parser = new JSONParser();
-			JSONObject json = new JSONObject();
-			JSONArray msg = new JSONArray();
-			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
-			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = this.getSourceImage(json);
-			//msg = (JSONArray) json.get("hits");
-			client.close();
-			if (msg == null) {
-				throw new DataNotFoundException("Articles not found");
-			} else {
-				return msg.toString().toString();
-			}
-		} else {
-			client.close();
-			throw new DataNotFoundException("Articles not found");
-		}
-
-	}
-
-	public String getListArticleByTags(String from, String size, String tags, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
-		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
-				.property(ClientProperties.READ_TIMEOUT, 1000)
-				.register(JacksonJsonProvider.class);
-		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
-		WebTarget rootTarget = client
-				.target(Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + ES_FIELDS);
-		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [" +
-				" {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}," +
-				" {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
-
-		if (!source.equals("*")) {
-			String[] sources = source.split(",");
-			String sources_concated = TextUtils.concat_strings(sources);
-			jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [" +
-					" {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}," +
-					" {\"terms\" : {\"source\" : [" + sources_concated + "]}}," +
-					" {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
-		}
-		Response response = rootTarget.request().post(Entity.json(jsonObject));
-
-		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
-			JSONParser parser = new JSONParser();
-			JSONObject json = new JSONObject();
-			JSONArray msg = new JSONArray();
-			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
-			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = this.getSourceImage(json);
-			//msg = (JSONArray) json.get("hits");
-			client.close();
-			if (msg == null) {
-				throw new DataNotFoundException("Articles not found");
-			} else {
-				return msg.toString().toString();
-			}
-		} else {
-			client.close();
-			throw new DataNotFoundException("Articles not found");
-		}
-
-	}
-
-	public String getListArticlReleatedTags(String tags, String number, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
-		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
-				.property(ClientProperties.READ_TIMEOUT, 1000)
-				.register(JacksonJsonProvider.class);
-		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
-		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH + "&size=" + number + "&sort=time_post:desc" + ES_FIELDS);
-		String jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [ {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}, {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
-		if (!source.equals("*")) {
-			String[] sources = source.split(",");
-			String sources_concated = TextUtils.concat_strings(sources);
-			jsonObject = "{\"query\" : {\"constant_score\" : { \"filter\" : {\"bool\" : { \"must\" : [" +
-					" {\"terms\" : {\"tags\" : [\"" + tags + "\"]}}," +
-					" {\"terms\" : {\"source\" : [" + sources_concated + "]}}," +
-					" {\"term\": {\"display\" :"+ Application.STATUS_DISPLAY  +"}} ] } } } } }";
-		}
-
-		Response response = rootTarget.request().post(Entity.json(jsonObject));
-
-			if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
-				JSONParser parser = new JSONParser();
-				JSONObject json = new JSONObject();
-				JSONArray msg = new JSONArray();
-				json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
-				json = (JSONObject) parser.parse(json.get("hits").toString());
-				//msg = (JSONArray) json.get("hits");
-				msg = this.getSourceImage(json);
-				client.close();
-				if (msg == null) {
-					throw new DataNotFoundException("Articles not found");
-				} else {
-					return msg.toString().toString();
-				}
-			} else {
-				client.close();
-				throw new DataNotFoundException("Articles not found");
-			}
-
+		return ElasticsearchUtils.convertEsResultToString(response);
 	}
 
 	public String getListArticleByStringInTitle(String from, String size, String value, String source, String connectivity) throws ParseException, UnknownHostException {
@@ -378,36 +257,6 @@ public class ArticleService {
 		} else {
 			client.close();
 			throw new DataNotFoundException("Articles not found");
-		}
-	}
-
-	public String getListHotTags() throws ParseException {
-		Timestamp now = getTimeStampNow();
-		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
-				.property(ClientProperties.READ_TIMEOUT, 1000) 				.register(JacksonJsonProvider.class);
-		String timestamp_before = String.valueOf((now.getTime() - TIMESTAMP_DAY_BEFORE) / 1000);
-		String timestamp = String.valueOf(now.getTime());
-		WebTarget rootTarget = client.target(Application.URL_ELASTICSEARCH);
-		String jsonObject = "{\"query\": { \"bool\": { \"must\": [{ \"range\": {\"time_post\" : {\"gte\" : \""+timestamp_before+"\"}}}]}},\"size\": 0, \"aggregations\": {\"hot_tags\": {\"terms\": { \"field\": \"tags\"} }}}";
-		Response response = rootTarget.request()
-				.post(Entity.json(jsonObject));
-		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
-			JSONParser parser = new JSONParser();
-			JSONObject json = new JSONObject();
-			JSONArray msg = new JSONArray();
-			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
-			json = (JSONObject) parser.parse(json.get("aggregations").toString());
-			json = (JSONObject) json.get("hot_tags");
-			msg = (JSONArray) json.get("buckets");
-			client.close();
-			if (msg == null) {
-				throw new DataNotFoundException("Tags not found");
-			} else {
-				return msg.toString().toString();
-			}
-		} else {
-			client.close();
-			throw new DataNotFoundException("Tags not found");
 		}
 	}
 

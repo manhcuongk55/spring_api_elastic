@@ -3,18 +3,24 @@ package vn.com.vtcc.browser.api.controller;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.search.SearchHit;
 import org.json.simple.JSONObject;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.DevicePlatform;
 import org.springframework.web.bind.annotation.*;
-
+import org.slf4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import sun.misc.BASE64Decoder;
+import vn.com.vtcc.browser.api.model.ImageRequest;
 import vn.com.vtcc.browser.api.service.ArticleService;
 import vn.com.vtcc.browser.api.service.CategoryService;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -27,7 +33,7 @@ import vn.com.vtcc.browser.api.utils.UrlUtils;
 
 @RestController
 public class ArticleController {
-
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	ArticleService ArticleService = new ArticleService();
 	CategoryService CategoryService = new CategoryService();
 	private static final String WHITELIST_SOURCE = "tiin.vn,netnews.vn,moison.vn,songkhoe.vn";
@@ -74,13 +80,16 @@ public class ArticleController {
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/list_article_categoryId", method = RequestMethod.POST, produces = "application/json")
-	public String postListArticlesByCategor(@RequestBody JSONObject input)
+	public String postListArticlesByCategor(@RequestBody JSONObject input , @RequestHeader(value="User-Agent") String userAgent)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		String categoryId = input.get("categoryId") == null ? "1" : input.get("categoryId").toString();
 		String from = input.get("from") == null ? "0" : input.get("from").toString();
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
 		String timestamp = input.get("timestamp") == null ? "0" : input.get("size").toString();
-		String source = input.get("source") == null ? WHITELIST_SOURCE : input.get("source").toString();
+		String source = input.get("source") == null ? "*" : input.get("source").toString();
+		if (userAgent.indexOf("Darwin") >= 0) {
+			source = input.get("source") == null | source == "*" ? WHITELIST_SOURCE : input.get("source").toString();
+		}
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 
 		//return ArticleService.getListArticleByCategoryId(from, size, categoryId,timestamp, source, connectivity);
@@ -89,13 +98,16 @@ public class ArticleController {
 
 	/* Get articles by category name */
 	@RequestMapping(value = "/list_article_categoryName", method = RequestMethod.POST, produces = "application/json")
-	public String postListArticlesByCategoryName(@RequestBody JSONObject input)
+	public String postListArticlesByCategoryName(@RequestBody JSONObject input , @RequestHeader(value="User-Agent") String userAgent)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		String categoryName = input.get("categoryName") == null ? "thoi_su" : input.get("categoryName").toString();
 		String from = input.get("from") == null ? "0" : input.get("from").toString();
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
 		String timestamp = input.get("timestamp") == null ? WHITELIST_SOURCE : input.get("size").toString();
-		String source = input.get("source") == null ? WHITELIST_SOURCE : input.get("source").toString();
+		String source = input.get("source") == null ? "*" : input.get("source").toString();
+		if (userAgent.indexOf("Darwin") >= 0) {
+			source = input.get("source") == null | source == "*" ? WHITELIST_SOURCE : input.get("source").toString();
+		}
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 
 		//return ArticleService.getListArticleByCategoryName(from, size, categoryName, timestamp,source, connectivity);
@@ -222,7 +234,7 @@ public class ArticleController {
 		try {
 			String parsedUrl = UrlUtils.convertToURLEscapingIllegalCharacters(input);
 			if (parsedUrl != null) {
-				System.out.println("===================> Displaying: " +parsedUrl);
+				logger.info("===================> Displaying: " +parsedUrl);
 				URLConnection conn = new URL(parsedUrl).openConnection();
 				conn.setConnectTimeout(5000);
 				conn.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
@@ -233,7 +245,7 @@ public class ArticleController {
 				IOUtils.copy(in, response.getOutputStream());
 			}
 		} catch (IOException e) {
-			System.out.println("================> Their server not returning image: " +input);
+			logger.error("================> Their server not returning image: " +input);
 		}
 	}
 	@RequestMapping(value = "/fallback_image", method = RequestMethod.POST)
@@ -244,7 +256,6 @@ public class ArticleController {
 			if (input.contains("base64")) {
 				String[] image_str = input.split(",");
 				if (image_str[1] != null) {
-					System.out.println("===================> Image is in base64 format");
 					byte[] imageByte;
 					BASE64Decoder decoder = new BASE64Decoder();
 					imageByte = decoder.decodeBuffer(image_str[1]);
@@ -263,4 +274,102 @@ public class ArticleController {
 		}
 	}
 
+	@CrossOrigin
+	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST, consumes="multipart/form-data")
+	public @ResponseBody
+	ResponseEntity<Object> uploadFileHandler(@RequestParam("type") String type,
+											@RequestParam("name") String name,
+											@RequestParam("image") MultipartFile image) {
+
+		if (!image.isEmpty()) {
+			try {
+				// Creating the directory to store file
+				String rootPath = "/media" + File.separator + type + File.separator;
+				File dir = new File(rootPath);
+				if (!dir.exists()) dir.mkdirs();
+
+				// Create the file on server
+				File serverFile = new File(dir.getAbsolutePath() + File.separator + name);
+				logger.info("Start storing image: " + serverFile);
+				InputStream inputStream = new BufferedInputStream(image.getInputStream());
+				FileOutputStream outputStream = new FileOutputStream(serverFile);
+
+				// reads input image from file
+				BufferedImage inputImage = ImageIO.read(inputStream);
+
+				// writes to the output image in specified format
+				boolean result = ImageIO.write(inputImage, "png", outputStream);
+				outputStream.close();
+				inputStream.close();
+
+				if (result) {
+					return ResponseEntity.status(HttpStatus.OK).body("Upload image success!");
+				}
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image!");
+			} catch (Exception e) {
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			}
+		} else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing image!");
+		}
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/uploadMultipleFiles", method = RequestMethod.POST)
+	public @ResponseBody
+	ResponseEntity<Object> uploadMultipleFilesHandler(@RequestParam("names") String[] names,
+													  @RequestParam("types") String[] types,
+													  @RequestPart("images") MultipartFile[] images) {
+
+		/*logger.info("====================> Files: " + req.getParameterMap());
+		String[] names = new String[2];
+		String[] types = new String[2];
+		MultipartFile[] images = new MultipartFile[2];
+
+		images[0] = req.getFile("images[0]");
+		images[1] = req.getFile("images[1]");
+		names[0] = req.getParameter("names[0]");
+		names[1] = req.getParameter("names[1]");
+		types[0] = req.getParameter("types[0]");
+		types[1] = req.getParameter("types[1]");*/
+		logger.info("===========> input length: " + names.length );
+		logger.info("===========> images length: " + images.length );
+		//String[] types = req.getParameter("types").split(",");
+		/*String[] names = req.getNames();
+		String[] types = req.getTypes();
+		MultipartFile[] images = req.getImages();*/
+		if (images.length != names.length)
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Data not match!");
+
+		for (int i = 0; i < images.length; i++) {
+			MultipartFile image = images[i];
+			String name = names[i];
+			String type = types[i];
+			try {
+				// Creating the directory to store file
+				String rootPath = "/media" + File.separator + type + File.separator;
+				File dir = new File(rootPath);
+				if (!dir.exists()) dir.mkdirs();
+
+				// Create the file on server
+				File serverFile = new File(dir.getAbsolutePath() + File.separator + name);
+				logger.info("===================> Start storing image: " + serverFile);
+				InputStream inputStream = new BufferedInputStream(image.getInputStream());
+				FileOutputStream outputStream = new FileOutputStream(serverFile);
+
+				// reads input image from file
+				BufferedImage inputImage = ImageIO.read(inputStream);
+
+				// writes to the output image in specified format
+				boolean result = ImageIO.write(inputImage, "png", outputStream);
+				outputStream.close();
+				inputStream.close();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload images!");
+			}
+		}
+		return ResponseEntity.status(HttpStatus.OK).body("Upload image success!");
+	}
 }

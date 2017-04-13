@@ -3,32 +3,24 @@ package vn.com.vtcc.browser.api.controller;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.Device;
 import org.springframework.mobile.device.DevicePlatform;
 import org.springframework.web.bind.annotation.*;
 import sun.misc.BASE64Decoder;
 import vn.com.vtcc.browser.api.Application;
-import vn.com.vtcc.browser.api.model.Source;
 import vn.com.vtcc.browser.api.service.SourceService;
-import vn.com.vtcc.browser.api.utils.ImageUtils;
 import vn.com.vtcc.browser.api.utils.TextUtils;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.util.List;
 
 /**
  * Created by giang on 10/03/2017.
@@ -57,7 +49,7 @@ public class SourceController {
     @RequestMapping(value = "/find_logo", method = RequestMethod.GET)
     public void findLogo(@RequestParam String input, HttpServletResponse response) {
         String result = "";
-        JSONParser parser = new JSONParser();
+        //JSONParser parser = new JSONParser();
         response.setContentType(MediaType.IMAGE_PNG_VALUE);
         try {
             String googleUrl = GOOGLE_API_LOGO + input.replace("google.com.vn", "google.com");
@@ -69,7 +61,9 @@ public class SourceController {
             data = data.replaceAll("(?!^)\\[(?!$)","{");
             data = data.replaceAll("(?!^)\\](?!$)","}");
             data = data.replaceAll("\",\"","\":\"");
-            JSONArray json = (JSONArray) parser.parse(data);
+            //JSONArray json = (JSONArray) parser.parse(data);
+            //JSONObject obj = new JSONObject(data);
+            JSONArray json = new JSONArray(data);
 
             result = TextUtils.findValueInJsonArrayFromKey(json,media);
             if (result != null && result.contains(",")) {
@@ -83,30 +77,6 @@ public class SourceController {
         }
     }
 
-    /*@CrossOrigin
-    @RequestMapping(value = "/find_favicon", method = RequestMethod.GET)
-    public void findFavicon(@RequestParam String input, HttpServletResponse response) {
-        String result = "";
-        JSONParser parser = new JSONParser();
-        response.setContentType(MediaType.IMAGE_PNG_VALUE);
-        try {
-            String googleUrl = GOOGLE_API_FAVICON + input;
-            URLConnection conn = new URL(googleUrl).openConnection();
-            conn.setConnectTimeout(5000);
-            conn.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
-            conn.setReadTimeout(5000);
-
-            InputStream in = conn.getInputStream();
-            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
-            BufferedImage sourceImage = ImageIO.read(in);
-            //Image thumbnail = sourceImage.getScaledInstance(100, -1, Image.SCALE_SMOOTH);
-            BufferedImage bufferedThumbnail = ImageUtils.getScaledInstance(sourceImage,100,100 ,false);
-            //bufferedThumbnail.getGraphics().drawImage(thumbnail, 0, 0, null);
-            ImageIO.write(bufferedThumbnail, "png", response.getOutputStream());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }*/
 
     @CrossOrigin
     @RequestMapping(value = "/find_favicon", method = RequestMethod.GET)
@@ -133,5 +103,17 @@ public class SourceController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/suggest_sites", method = RequestMethod.GET)
+    public String suggestSources(@RequestParam String input, @RequestParam(value = "size", defaultValue = "5") String size) {
+        return sourceService.suggestSources(input,size);
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/suggest_sites_by_category", method = RequestMethod.GET)
+    public String suggestSourcesByCategory(@RequestParam(value="size", defaultValue = "6") String size, @RequestParam(value="categoryId", defaultValue = "1") String categoryId ) {
+        return sourceService.suggestSourcesByCategory(categoryId,size);
     }
 }

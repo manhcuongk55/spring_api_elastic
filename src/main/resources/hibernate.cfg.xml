@@ -12,6 +12,7 @@
 		<property name="connection.username">webacc</property>
 		<property name="connection.password">LDGP85387398342*437122**</property>
 
+
 		<!-- c3p0 config http://www.hibernate.org/214.html -->
 		<property name="connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
 		<property name="hibernate.c3p0.acquire_increment">1</property>
@@ -40,5 +41,6 @@
 		<mapping class="vn.com.vtcc.browser.api.model.User" />
 		<mapping class="vn.com.vtcc.browser.api.model.Category" />
 		<mapping class="vn.com.vtcc.browser.api.model.Source" />
+		<mapping class="vn.com.vtcc.browser.api.model.Site" />
 	</session-factory>
 </hibernate-configuration>

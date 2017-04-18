@@ -3,10 +3,13 @@ package vn.com.vtcc.browser.api.controller;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.DevicePlatform;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +17,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import sun.misc.BASE64Decoder;
 import vn.com.vtcc.browser.api.service.ArticleService;
 import vn.com.vtcc.browser.api.service.CategoryService;
-
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
@@ -23,10 +25,10 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
-
 import org.springframework.mobile.device.Device;
 import vn.com.vtcc.browser.api.utils.UrlUtils;
 
+@Component
 @RestController
 public class ArticleController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -64,7 +66,6 @@ public class ArticleController {
 	@RequestMapping(value = "/list_hot_article", method = RequestMethod.POST, produces = "application/json")
 	public String postListHotNews(@RequestBody JSONObject input, @RequestHeader(value="User-Agent") String userAgent)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
-
 		String from = input.get("from") == null ? "0" : input.get("from").toString();
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
 		String timestamp = input.get("timestamp") == null ? "0" : input.get("size").toString();
@@ -206,6 +207,21 @@ public class ArticleController {
 		String source = input.get("source") == null ? "*" : input.get("size").toString();
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 		return ArticleService.getListArticleByStringInSource(from, size, source,timestamp, connectivity);
+	}
+
+	/* GET LIST OF RELATED ARTICLES */
+	@RequestMapping(value = "/related_articles", method = RequestMethod.POST, produces = "application/json")
+	public String postListArticlReleated(@RequestBody JSONObject input, @RequestHeader(value="User-Agent") String userAgent)
+			throws org.json.simple.parser.ParseException, UnknownHostException {
+		String id = input.get("id") == null ? "" : input.get("id").toString();
+		String size = input.get("size") == null ? "10" : input.get("size").toString();
+		String timestamp = input.get("timestamp") == null ? "*" : input.get("size").toString();
+		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
+		String source = input.get("source") == null ? "*" : input.get("source").toString();
+		if (userAgent.indexOf("Darwin") >= 0) {
+			source = input.get("source") == null | source == "*" ? WHITELIST_SOURCE : input.get("source").toString();
+		}
+		return ArticleService.getRelatedArticles(id, size, timestamp, source, connectivity);
 	}
 
 	@CrossOrigin

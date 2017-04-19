@@ -1,33 +1,16 @@
 package vn.com.vtcc.browser.api;
 
-import org.glassfish.jersey.message.internal.XmlCollectionJaxbProvider;
-import org.json.simple.JSONArray;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.MultipartConfigFactory;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import vn.com.vtcc.browser.api.model.Category;
-import vn.com.vtcc.browser.api.model.Source;
-import vn.com.vtcc.browser.api.service.CategoryService;
-import vn.com.vtcc.browser.api.service.SourceService;
 
-import javax.servlet.MultipartConfigElement;
-import java.util.List;
 
 @SpringBootApplication
 @Configuration
-@EnableCaching
-
 public class Application extends WebMvcConfigurerAdapter {
 	public static final int RESPONE_STATAUS_OK = 200;
 	public static String ES_SERVER = System.getProperty("es_server");
@@ -51,13 +34,6 @@ public class Application extends WebMvcConfigurerAdapter {
 				.addResourceLocations("/resources/","classpath:/source_logos/");
 		registry.addResourceHandler("/source_logos_favicon/**")
 				.addResourceLocations("/resources/","classpath:/source_logos_favicon/");
-	}
-
-	@Bean(name = "multipartResolver")
-	public CommonsMultipartResolver createMultipartResolver() {
-		CommonsMultipartResolver resolver=new CommonsMultipartResolver();
-		resolver.setDefaultEncoding("utf-8");
-		return resolver;
 	}
 
 	public static void main(String[] args) {

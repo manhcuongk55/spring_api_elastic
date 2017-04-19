@@ -3,17 +3,16 @@ package vn.com.vtcc.browser.api.controller;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.DevicePlatform;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import sun.misc.BASE64Decoder;
 import vn.com.vtcc.browser.api.service.ArticleService;
 import vn.com.vtcc.browser.api.service.CategoryService;
@@ -28,7 +27,6 @@ import java.net.UnknownHostException;
 import org.springframework.mobile.device.Device;
 import vn.com.vtcc.browser.api.utils.UrlUtils;
 
-@Component
 @RestController
 public class ArticleController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -303,45 +301,4 @@ public class ArticleController {
 			System.out.println("================> Their server not returning image: " +input);
 		}
 	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST, consumes="multipart/form-data")
-	public @ResponseBody
-	ResponseEntity<Object> uploadFileHandler(@RequestParam("type") String type,
-											@RequestParam("name") String name,
-											@RequestParam("image") MultipartFile image) {
-
-		if (!image.isEmpty()) {
-			try {
-				// Creating the directory to store file
-				String rootPath = "/media" + File.separator + type + File.separator;
-				File dir = new File(rootPath);
-				if (!dir.exists()) dir.mkdirs();
-
-				// Create the file on server
-				File serverFile = new File(dir.getAbsolutePath() + File.separator + name);
-				logger.info("Start storing image: " + serverFile);
-				InputStream inputStream = new BufferedInputStream(image.getInputStream());
-				FileOutputStream outputStream = new FileOutputStream(serverFile);
-
-				// reads input image from file
-				BufferedImage inputImage = ImageIO.read(inputStream);
-
-				// writes to the output image in specified format
-				boolean result = ImageIO.write(inputImage, "png", outputStream);
-				outputStream.close();
-				inputStream.close();
-
-				if (result) {
-					return ResponseEntity.status(HttpStatus.OK).body("Upload image success!");
-				}
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image!");
-			} catch (Exception e) {
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-			}
-		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing image!");
-		}
-	}
-
 }

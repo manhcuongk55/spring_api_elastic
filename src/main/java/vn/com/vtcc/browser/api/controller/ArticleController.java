@@ -9,21 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.DevicePlatform;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import sun.misc.BASE64Decoder;
 import vn.com.vtcc.browser.api.service.ArticleService;
 import vn.com.vtcc.browser.api.service.CategoryService;
-
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
-
 import org.springframework.mobile.device.Device;
 import vn.com.vtcc.browser.api.utils.UrlUtils;
 
@@ -44,6 +38,7 @@ public class ArticleController {
 		return ArticleService.getArticleByID(id);
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/get_list_hot_article", method = RequestMethod.GET, produces = "application/json")
 	public String getListHotNews(@RequestParam(value = "from", defaultValue = "0") String from,
 								 @RequestParam(value = "size", defaultValue = "20") String size,
@@ -61,10 +56,10 @@ public class ArticleController {
 		return ArticleService.getListHotArticles(from, size, timestamp, source, connectivity);
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/list_hot_article", method = RequestMethod.POST, produces = "application/json")
 	public String postListHotNews(@RequestBody JSONObject input, @RequestHeader(value="User-Agent") String userAgent)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
-
 		String from = input.get("from") == null ? "0" : input.get("from").toString();
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
 		String timestamp = input.get("timestamp") == null ? "0" : input.get("size").toString();
@@ -110,6 +105,7 @@ public class ArticleController {
 	}
 
 	/* Get articles by category name */
+	@CrossOrigin
 	@RequestMapping(value = "/list_article_categoryName", method = RequestMethod.POST, produces = "application/json")
 	public String postListArticlesByCategoryName(@RequestBody JSONObject input , @RequestHeader(value="User-Agent") String userAgent)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
@@ -139,6 +135,7 @@ public class ArticleController {
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		return ArticleService.getListArticleByTags(from, size, tags,timestamp,source, connectivity);
 	}
+	@CrossOrigin
 	@RequestMapping(value = "/list_article_tags", method = RequestMethod.POST, produces = "application/json")
 	public String postListArticlesByTags(@RequestBody JSONObject input)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
@@ -152,6 +149,7 @@ public class ArticleController {
 		return ArticleService.getListArticleByTags(from, size, tags,timestamp,source, connectivity);
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/list_article_related_tags", method = RequestMethod.POST, produces = "application/json")
 	public String postListArticlReleatedTags(@RequestBody JSONObject input)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
@@ -176,6 +174,7 @@ public class ArticleController {
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		return ArticleService.getListArticleByStringInTitle(from, size, title, source, connectivity);
 	}
+	@CrossOrigin
 	@RequestMapping(value = "/list_article_tittle", method = RequestMethod.GET, produces = "application/json")
 	public String postListArticlSearchByTitle(@RequestBody JSONObject input)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
@@ -187,25 +186,21 @@ public class ArticleController {
 		return ArticleService.getListArticleByStringInTitle(from, size, title, source, connectivity);
 	}
 
-	/* Get article by source */
+
+	/* GET LIST OF RELATED ARTICLES */
 	@CrossOrigin
-	@RequestMapping(value = "/get_list_article_source", method = RequestMethod.GET, produces = "application/json")
-	public String getListArticlSearchBySource(@RequestParam(value = "from", defaultValue = "0") String from,
-											  @RequestParam(value = "size", defaultValue = "20") String size,
-											  @RequestParam(value = "source", defaultValue = WHITELIST_SOURCE) String source,@RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
-											  @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
+	@RequestMapping(value = "/related_articles", method = RequestMethod.POST, produces = "application/json")
+	public String postListArticlReleated(@RequestBody JSONObject input, @RequestHeader(value="User-Agent") String userAgent)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
-		return ArticleService.getListArticleByStringInSource(from, size, source,timestamp, connectivity);
-	}
-	@RequestMapping(value = "/list_article_source", method = RequestMethod.GET, produces = "application/json")
-	public String postListArticlSearchBySource(@RequestBody JSONObject input)
-			throws org.json.simple.parser.ParseException, UnknownHostException {
-		String timestamp = input.get("timestamp") == null ? "0" : input.get("timestamp").toString();
-		String from = input.get("from") == null ? "0" : input.get("from").toString();
-		String size = input.get("size") == null ? "20" : input.get("size").toString();
-		String source = input.get("source") == null ? "*" : input.get("size").toString();
+		String id = input.get("id") == null ? "" : input.get("id").toString();
+		String size = input.get("size") == null ? "10" : input.get("size").toString();
+		String timestamp = input.get("timestamp") == null ? "*" : input.get("size").toString();
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
-		return ArticleService.getListArticleByStringInSource(from, size, source,timestamp, connectivity);
+		String source = input.get("source") == null ? "*" : input.get("source").toString();
+		if (userAgent.indexOf("Darwin") >= 0) {
+			source = input.get("source") == null | source == "*" ? WHITELIST_SOURCE : input.get("source").toString();
+		}
+		return ArticleService.getRelatedArticles(id, size, timestamp, source, connectivity);
 	}
 
 	@CrossOrigin
@@ -262,6 +257,7 @@ public class ArticleController {
 		}
 	}
 
+	@CrossOrigin
 	@RequestMapping(value = "/fallback_image", method = RequestMethod.POST)
 	public void postImageFromByteArray(@RequestBody String input, HttpServletResponse response) throws IOException {
 		System.out.println("===================> Displaying: " +input);
@@ -289,43 +285,10 @@ public class ArticleController {
 	}
 
 	@CrossOrigin
-	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST, consumes="multipart/form-data")
-	public @ResponseBody
-	ResponseEntity<Object> uploadFileHandler(@RequestParam("type") String type,
-											@RequestParam("name") String name,
-											@RequestParam("image") MultipartFile image) {
-
-		if (!image.isEmpty()) {
-			try {
-				// Creating the directory to store file
-				String rootPath = "/media" + File.separator + type + File.separator;
-				File dir = new File(rootPath);
-				if (!dir.exists()) dir.mkdirs();
-
-				// Create the file on server
-				File serverFile = new File(dir.getAbsolutePath() + File.separator + name);
-				logger.info("Start storing image: " + serverFile);
-				InputStream inputStream = new BufferedInputStream(image.getInputStream());
-				FileOutputStream outputStream = new FileOutputStream(serverFile);
-
-				// reads input image from file
-				BufferedImage inputImage = ImageIO.read(inputStream);
-
-				// writes to the output image in specified format
-				boolean result = ImageIO.write(inputImage, "png", outputStream);
-				outputStream.close();
-				inputStream.close();
-
-				if (result) {
-					return ResponseEntity.status(HttpStatus.OK).body("Upload image success!");
-				}
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image!");
-			} catch (Exception e) {
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-			}
-		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing image!");
-		}
+	@RequestMapping(value = "/list_tags_education", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<Object> getListTagsForEducationCategory(@RequestParam(value = "size", defaultValue = "10") String size,
+																  @RequestParam(value = "cat_id", defaultValue = "1") String cat_id)
+			throws org.json.simple.parser.ParseException {
+		return ArticleService.getTagsOfEducationCategory(size,cat_id);
 	}
-
 }

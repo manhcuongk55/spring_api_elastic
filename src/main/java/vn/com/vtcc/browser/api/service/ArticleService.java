@@ -1,11 +1,14 @@
 package vn.com.vtcc.browser.api.service;
 
+import org.aspectj.lang.annotation.Aspect;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.MoreLikeThisQueryBuilder.Item;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryBuilders.*;
 import java.io.*;
@@ -19,6 +22,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.glassfish.jersey.client.ClientProperties;
@@ -30,6 +35,7 @@ import org.json.simple.parser.ParseException;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import vn.com.vtcc.browser.api.Application;
@@ -40,7 +46,9 @@ import vn.com.vtcc.browser.api.utils.TextUtils;
 public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
-	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source","url","tags","content"};
+	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source","url","tags","content","id"};
+	private static final String[] BLACKLIST_FIELDS = {"raw_content","duplicated","canonical","display"};
+	private static final String[] MORE_LIKE_THIS_FIELDS = {"tags","title"};
 	Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 	JedisCluster jc = new JedisCluster(jedisClusterNodes);
 	Settings settings = Settings.builder().put("cluster.name", "vbrowser")
@@ -82,6 +90,8 @@ public class ArticleService {
 		}
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
+		} else {
+			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
 		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
 				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
@@ -101,6 +111,8 @@ public class ArticleService {
 		}
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
+		}  else {
+			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
 		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
 				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
@@ -120,6 +132,8 @@ public class ArticleService {
 		}
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
+		}  else {
+			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
 		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
 				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
@@ -145,6 +159,29 @@ public class ArticleService {
 		return results;
 	}
 
+	public String getRelatedArticles(String id, String size, String timestamp, String source, String connectivity) {
+		List<String> sources = Arrays.asList(source.split(","));
+		Item itemLikeThis = new Item(Application.ES_INDEX_NAME, Application.ES_INDEX_TYPE, id);
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setQuery(QueryBuilders.boolQuery()
+						.must(QueryBuilders.moreLikeThisQuery(MORE_LIKE_THIS_FIELDS, new Item[]{itemLikeThis}).minTermFreq(1))
+						.filter(QueryBuilders.termQuery("display","1")));
+
+		/*SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setQuery(QueryBuilders.moreLikeThisQuery(MORE_LIKE_THIS_FIELDS, new Item[]{itemLikeThis}).maxQueryTerms(10).minTermFreq(1));*/
+		if (!sources.contains("*")) {
+			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
+		}
+		if (!connectivity.equals("wifi")) {
+			req.setFetchSource(WHITELIST_FIELDS,null);
+		} else {
+			req.setFetchSource(null, BLACKLIST_FIELDS);
+		}
+		SearchResponse response = req.setFrom(1).setSize(Integer.parseInt(size)).execute().actionGet();
+
+		return ElasticsearchUtils.convertEsResultToString(response);
+	}
+
 	public String getArticleByID(String id) {
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
 				.setSearchType(SearchType.QUERY_THEN_FETCH)
@@ -168,6 +205,8 @@ public class ArticleService {
 
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
+		}  else {
+			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
 		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
 				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
@@ -191,47 +230,6 @@ public class ArticleService {
 				.register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client.target(path);
 		Response response = rootTarget.request().get();
-		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
-			JSONParser parser = new JSONParser();
-			JSONObject json = new JSONObject();
-			JSONArray msg = new JSONArray();
-			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());
-			json = (JSONObject) parser.parse(json.get("hits").toString());
-			msg = this.getSourceImage(json);
-			//msg = (JSONArray) json.get("hits");
-			client.close();
-			if (msg == null) {
-				throw new DataNotFoundException("Articles not found");
-			} else {
-				return msg.toString().toString();
-			}
-		} else {
-			client.close();
-			throw new DataNotFoundException("Articles not found");
-		}
-	}
-
-	public String getListArticleByStringInSource(String from, String size, String value, String timestamp, String connectivity) throws ParseException, UnknownHostException {
-		String path = "";
-		try {
-			if (timestamp.equals("0")) {
-				Timestamp now = getTimeStampNow();
-				timestamp = String.valueOf(now.getTime());
-			}
-			String ES_FIELDS = "&_source_exclude=raw_content,canonical";
-			if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
-			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=display:"+Application.STATUS_DISPLAY+" AND source:"
-					+ URLEncoder.encode("\"" + value + "\"", "UTF-8") + " AND timestamp:[* TO " + timestamp + "]" + ES_FIELDS;
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		Client client = ClientBuilder.newClient().property(ClientProperties.CONNECT_TIMEOUT, CONNECTION_TIMEOUT)
-				.property(ClientProperties.READ_TIMEOUT, 1000)
-				.register(JacksonJsonProvider.class);
-		WebTarget rootTarget = client.target(path);
-		Response response = rootTarget.request() 
-				.get();
 		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
 			JSONParser parser = new JSONParser();
 			JSONObject json = new JSONObject();
@@ -298,5 +296,17 @@ public class ArticleService {
 			e.printStackTrace();
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+	}
+
+	public ResponseEntity<Object> getTagsOfEducationCategory(String size, String category_id) {
+
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setSearchType(SearchType.QUERY_THEN_FETCH)
+				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("category.id",category_id)))
+				.addAggregation(AggregationBuilders.terms("tags").field("tags").size(Integer.parseInt(size)));
+
+		SearchResponse response = req.execute().actionGet();
+		String result = ElasticsearchUtils.convertEsResultAggrsToString(response);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 }

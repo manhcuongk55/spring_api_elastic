@@ -78,6 +78,20 @@
 			<version>2.4</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.jclarion/image4j -->
+		<dependency>
+			<groupId>org.jclarion</groupId>
+			<artifactId>image4j</artifactId>
+			<version>0.7</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib -->
+		<dependency>
+			<groupId>org.imgscalr</groupId>
+			<artifactId>imgscalr-lib</artifactId>
+			<version>4.2</version>
+		</dependency>
+
 
 		<!-- Hibernate Core -->
 		<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
@@ -190,6 +204,42 @@
 			<artifactId>spring-mobile-device</artifactId>
 		</dependency>
 
+
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-aop -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>4.3.7.RELEASE</version>
+		</dependency>
+
+		<!-- Aspectj Logging -->
+		<!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>1.8.10</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjtools</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/aspectj/aspectjrt -->
+		<dependency>
+			<groupId>aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>1.5.3</version>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.5</version>
+		</dependency>
+
+
 		<!-- Spring redis framework -->
 		<dependency>
 			<groupId>org.springframework.data</groupId>
@@ -210,6 +260,12 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>2.5.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>1.2.0.RELEASE</version>
 		</dependency>
 	</dependencies>
 	<repositories>

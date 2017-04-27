@@ -69,7 +69,7 @@ public class SourceService {
     }
 
     public String suggestSources(String input, String size) {
-        String sql = "Select e from " + Site.class.getName() + " e where e.link like '%" + input + "%' order by e.priority";
+        String sql = "Select e from " + Site.class.getName() + " e where e.link like '%" + input + "%' order by e.priority ASC ";
 
         SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
@@ -93,7 +93,7 @@ public class SourceService {
     }
 
     public String suggestSourcesByCategory(String categoryId, String size) {
-        String sql = "Select e from " + Site.class.getName() +" e where e.id_special_topic = '" + categoryId + "' order by e.priority";
+        String sql = "Select e from " + Site.class.getName() +" e where e.id_special_topic = '" + categoryId + "' order by e.priority asc ";
         SessionFactory factory = HibernateUtils.getSessionFactory();
         Session session = factory.getCurrentSession();
         String redisName = REDIS_SITES_BY_CATEGORY + "_" + categoryId;

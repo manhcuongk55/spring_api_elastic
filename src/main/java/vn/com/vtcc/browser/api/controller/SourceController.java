@@ -5,19 +5,24 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.Device;
 import org.springframework.mobile.device.DevicePlatform;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.service.SourceService;
 import vn.com.vtcc.browser.api.utils.TextUtils;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -27,6 +32,7 @@ import java.nio.charset.Charset;
  */
 @RestController
 public class SourceController {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     SourceService sourceService = new SourceService();
     public static String GOOGLE_API_LOGO = "https://www.google.com/search?tbm=isch&q=logo ";
     public static String GOOGLE_API_FAVICON = "https://www.google.com/s2/favicons?domain=";
@@ -115,5 +121,88 @@ public class SourceController {
     @RequestMapping(value = "/suggest_sites_by_category", method = RequestMethod.GET)
     public String suggestSourcesByCategory(@RequestParam(value="size", defaultValue = "6") String size, @RequestParam(value="categoryId", defaultValue = "1") String categoryId ) {
         return sourceService.suggestSourcesByCategory(categoryId,size);
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/uploadFile", method = RequestMethod.POST, consumes="multipart/form-data")
+    public @ResponseBody
+    ResponseEntity<Object> uploadFileHandler(@RequestParam("type") String type,
+                                             @RequestParam("name") String name,
+                                             @RequestParam("image") MultipartFile image) throws IOException {
+
+        if (!image.isEmpty()) {
+            InputStream inputStream = null;
+            FileOutputStream outputStream = null;
+            try {
+                // Creating the directory to store file
+                String rootPath = "/media" + File.separator + type + File.separator;
+                File dir = new File(rootPath);
+                if (!dir.exists()) dir.mkdirs();
+
+                // Create the file on server
+                File serverFile = new File(dir.getAbsolutePath() + File.separator + name);
+                logger.info("Start storing image: " + serverFile);
+                inputStream = new BufferedInputStream(image.getInputStream());
+                outputStream = new FileOutputStream(serverFile);
+
+                // reads input image from file
+                BufferedImage inputImage = ImageIO.read(inputStream);
+
+                // writes to the output image in specified format
+                boolean result = ImageIO.write(inputImage, "png", outputStream);
+                outputStream.close();
+                inputStream.close();
+                if (result) {
+                    return ResponseEntity.status(HttpStatus.OK).body("Upload image success!");
+                }
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image!");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            } finally {
+                if (inputStream != null) {inputStream.close();}
+                if (outputStream != null) {outputStream.close();}
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing image!");
+        }
+    }
+
+    @CrossOrigin
+    @RequestMapping(value = "/uploadMultipleFiles", method = RequestMethod.POST)
+    public @ResponseBody
+    ResponseEntity<Object> uploadMultipleFilesHandler(@RequestParam("names") String[] names,
+                                                      @RequestParam("types") String[] types,
+                                                      @RequestParam("images") MultipartFile[] images) throws IOException {
+
+        FileOutputStream outputStream = null;
+        InputStream inputStream = null;
+        if (images.length != names.length)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Data not match!");
+        for (int i = 0; i < images.length; i++) {
+            MultipartFile image = images[i];
+            String name = names[i];
+            String type = types[i];
+            try {
+                String rootPath = "/media" + File.separator + type + File.separator;
+                File dir = new File(rootPath);
+                if (!dir.exists()) dir.mkdirs();
+                File serverFile = new File(dir.getAbsolutePath() + File.separator + name);
+                logger.info("===================> Start storing image: " + serverFile);
+                inputStream = new BufferedInputStream(image.getInputStream());
+                outputStream = new FileOutputStream(serverFile);
+                // reads input image from file
+                BufferedImage inputImage = ImageIO.read(inputStream);
+                // writes to the output image in specified format
+                boolean result = ImageIO.write(inputImage, "png", outputStream);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload images!");
+            } finally {
+                if (inputStream != null) {inputStream.close();}
+                if (outputStream != null) {outputStream.close();}
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Upload image success!");
     }
 }

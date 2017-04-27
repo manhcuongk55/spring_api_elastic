@@ -1,7 +1,6 @@
 package vn.com.vtcc.browser.api.utils;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -21,6 +20,7 @@ public class ElasticsearchUtils {
         for (int i = 0; i < hits.length; i++) {
             JSONObject obj = new JSONObject();
             obj.put("_source",hits[i].getSource());
+            obj.put("_id", hits[i].getId());
             results.add(obj);
         }
 

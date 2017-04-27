@@ -6,6 +6,7 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.MoreLikeThisQueryBuilder.Item;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryBuilders.*;
 import java.io.*;
@@ -40,7 +41,9 @@ import vn.com.vtcc.browser.api.utils.TextUtils;
 public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
-	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source","url","tags","content"};
+	private static final String[] BLACKLIST_FIELDS = {"raw_content", "canonical"};
+	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source","url","tags", "id"};
+	private static final String[] MORE_LIKE_THIS_FIELDS = {"tags", "title", "category"};
 	Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 	JedisCluster jc = new JedisCluster(jedisClusterNodes);
 	Settings settings = Settings.builder().put("cluster.name", "vbrowser")
@@ -82,6 +85,8 @@ public class ArticleService {
 		}
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
+		} else {
+			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
 		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
 				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
@@ -101,10 +106,33 @@ public class ArticleService {
 		}
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
+		} else {
+			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
 		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
 				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
 
+		return ElasticsearchUtils.convertEsResultToString(response);
+	}
+
+	public String getRelatedArticles(String id, String size, String timestamp, String source, String connectivity) {
+		List<String> sources = Arrays.asList(source.split(","));
+		Item itemLikeThis = new Item(Application.ES_INDEX_NAME, Application.ES_INDEX_TYPE, id);
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setQuery(QueryBuilders.boolQuery()
+						.must(QueryBuilders.moreLikeThisQuery(MORE_LIKE_THIS_FIELDS, new Item[]{itemLikeThis}).minTermFreq(1))
+						.filter(QueryBuilders.termQuery("display","1")));
+		/*SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setQuery(QueryBuilders.moreLikeThisQuery(MORE_LIKE_THIS_FIELDS, new Item[]{itemLikeThis}).maxQueryTerms(10).minTermFreq(1));*/
+		if (!sources.contains("*")) {
+			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
+		}
+		if (!connectivity.equals("wifi")) {
+			req.setFetchSource(WHITELIST_FIELDS,null);
+		} else {
+			req.setFetchSource(null, new String[]{"raw_content", "content", "canonical","tags","category"});
+		}
+		SearchResponse response = req.setFrom(1).setSize(Integer.parseInt(size)).execute().actionGet();
 		return ElasticsearchUtils.convertEsResultToString(response);
 	}
 
@@ -120,6 +148,8 @@ public class ArticleService {
 		}
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
+		} else {
+			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
 		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
 				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
@@ -168,6 +198,8 @@ public class ArticleService {
 
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
+		}  else {
+			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
 		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
 				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();

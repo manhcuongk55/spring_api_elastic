@@ -22,6 +22,7 @@ public class Application extends WebMvcConfigurerAdapter {
 	public static final String ES_INDEX_NAME = "br_article_v4";
 	public static final String ES_INDEX_TYPE = "article";
 	public static final String URL_GOOGLE = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=";
+
 	public static final String STATUS_DISPLAY = "1";
 	//public static final String HOST_NAME = "http://news.safenet.vn/";
 	public static final String MEDIA_HOST_NAME = "http://media.sfive.vn/";

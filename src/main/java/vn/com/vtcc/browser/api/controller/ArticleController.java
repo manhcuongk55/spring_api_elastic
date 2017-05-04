@@ -163,6 +163,21 @@ public class ArticleController {
 		return ArticleService.getListArticleByTags(from, size, tags,timestamp,source, connectivity);
 	}
 
+	/* GET LIST OF RELATED ARTICLES */
+	@RequestMapping(value = "/related_articles", method = RequestMethod.POST, produces = "application/json")
+	public String postListArticlReleated(@RequestBody JSONObject input, @RequestHeader(value="User-Agent") String userAgent)
+			throws org.json.simple.parser.ParseException, UnknownHostException {
+		String id = input.get("id") == null ? "" : input.get("id").toString();
+		String size = input.get("size") == null ? "10" : input.get("size").toString();
+		String timestamp = input.get("timestamp") == null ? "*" : input.get("size").toString();
+		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
+		String source = input.get("source") == null ? "*" : input.get("source").toString();
+		if (userAgent.indexOf("Darwin") >= 0) {
+			source = input.get("source") == null | source == "*" ? WHITELIST_SOURCE : input.get("source").toString();
+		}
+		return ArticleService.getRelatedArticles(id, size, timestamp, source, connectivity);
+	}
+
 	/* Get articles by title */
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_tittle", method = RequestMethod.GET, produces = "application/json")

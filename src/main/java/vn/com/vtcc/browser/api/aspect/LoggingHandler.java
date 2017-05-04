@@ -8,15 +8,17 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -24,10 +26,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Aspect
 @Component
 public class LoggingHandler {
-
-    @Autowired
-    private KafkaTemplate<Integer, String> template;
-
     Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Pointcut("within(@org.springframework.stereotype.Controller *)")
@@ -45,6 +43,19 @@ public class LoggingHandler {
     public void logAnyFunctionWithinResource() {
     }
 
+    //before -> Any resource annotated with @RestController annotation
+    //and all method and function taking HttpServletRequest as first parameter
+
+    /*@Before("restController()")
+    public void logBefore(JoinPoint joinPoint) {
+        String className = joinPoint.getSignature().getDeclaringTypeName();
+        String methodName = joinPoint.getSignature().getName();
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        if (request != null) {
+            log.info("The user with ip: " + request.getRemoteAddr() + " is requesting to method " + className + "."
+                    + methodName + "() " + " with arguments: " + Arrays.toString(joinPoint.getArgs()));
+        }
+    }*/
     //After -> All method within resource annotated with @Controller annotation
     // and return a  value
     @AfterReturning(pointcut = "controller() && restController()", returning = "result")
@@ -53,26 +64,25 @@ public class LoggingHandler {
         log.debug("Method Return value : " + returnValue);
     }
 
-    //Around -> Any method within resource annotated with @RestController annotation
+    //Around -> Any method within resource annotated with @Controller annotation
     @Around("restController()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+
         long start = System.currentTimeMillis();
         try {
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date date = new Date();
+            String now = dateFormat.format(date);
             String methodName = joinPoint.getSignature().getName();
             Object result = joinPoint.proceed();
             long elapsedTime = System.currentTimeMillis() - start;
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            String message = dateFormat.format(date) + " " + request.getRemoteAddr() + " "
-                    + request.getMethod() + " " + methodName
-                     + " " + elapsedTime;
-            //template.send("logging_test",message);
-            //template.send("logging_test","ip_address",request.getRemoteAddr());
+            String message = now + " " + request.getRemoteAddr() + " " + request.getMethod() + " " + methodName
+                    + " " + Arrays.toString(joinPoint.getArgs()) + " " + elapsedTime;
             log.info(message);
             return result;
         } catch (IllegalArgumentException e) {
-            log.info("#######!!!!! Illegal argument " + Arrays.toString(joinPoint.getArgs()) + " in "
+            log.info("!!!!! Illegal argument " + Arrays.toString(joinPoint.getArgs()) + " in "
                     + joinPoint.getSignature().getName() + "()");
             throw e;
         }

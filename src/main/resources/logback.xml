@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="logPattern" value="%d %-5level %logger{35} - %msg%n"/>
+    <property name="logPattern" value="%msg%n"/>
     <property name="logEncoding" value="UTF-8"/>
-    <property name="logDirectory" value="/var/log"/>
+    <property name="logDirectory" value="/var/log/api"/>
 
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
     <appender name="fileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${logDirectory}/browser.log</file>
+
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
         <fileNamePattern>${logDirectory}/browser_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
         <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
@@ -14,11 +15,18 @@
     </rollingPolicy>
     <encoder>
         <charset>${logEncoding}</charset>
+        <pattern>${logPattern}</pattern>
     </encoder>
     </appender>
 
     <logger name="org.springframework" level="warn"/>
 
+    <!--<root level="off">
+        <AppenderRef ref="Console"/>
+    </root>
+    <root level="off">
+        <AppenderRef ref="SimpleConsole"/>
+    </root>-->
     <root level="INFO">
     <appender-ref ref="fileAppender"/>
     </root>

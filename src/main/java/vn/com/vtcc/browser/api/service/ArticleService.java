@@ -310,4 +310,21 @@ public class ArticleService {
 		String result = ElasticsearchUtils.convertEsResultAggrsToString(response);
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
+
+	public String getListVideoArticles(String from, String size, String connectivity) throws ParseException, UnknownHostException {
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setSearchType(SearchType.QUERY_THEN_FETCH)
+				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1))
+						.must(QueryBuilders.matchQuery("category.id", 16)));
+
+		if (!connectivity.equals("wifi")) {
+			req.setFetchSource(WHITELIST_FIELDS,null);
+		}  else {
+			req.setFetchSource(null,BLACKLIST_FIELDS);
+		}
+		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
+				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
+
+		return ElasticsearchUtils.convertEsResultToString(response);
+	}
 }

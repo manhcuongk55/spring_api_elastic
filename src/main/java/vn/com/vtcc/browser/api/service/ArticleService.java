@@ -8,7 +8,6 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.MoreLikeThisQueryBuilder.Item;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryBuilders.*;
 import java.io.*;
@@ -46,9 +45,10 @@ import vn.com.vtcc.browser.api.utils.TextUtils;
 public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
-	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source","url","tags","content","id"};
-	private static final String[] BLACKLIST_FIELDS = {"raw_content","duplicated","canonical","display"};
-	private static final String[] MORE_LIKE_THIS_FIELDS = {"tags","title"};
+	private static final String[] BLACKLIST_FIELDS = {"raw_content", "canonical"};
+	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source","url","tags", "id"};
+	private static final String[] MORE_LIKE_THIS_FIELDS = {"tags", "title", "category"};
+
 	Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 	JedisCluster jc = new JedisCluster(jedisClusterNodes);
 	Settings settings = Settings.builder().put("cluster.name", "vbrowser")
@@ -119,6 +119,7 @@ public class ArticleService {
 
 		return ElasticsearchUtils.convertEsResultToString(response);
 	}
+
 
 	public String getListArticleByCatName(String from, String size, String categoryName, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
 		List<String> sources = Arrays.asList(source.split(","));

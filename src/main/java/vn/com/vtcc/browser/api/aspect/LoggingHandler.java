@@ -4,7 +4,10 @@ package vn.com.vtcc.browser.api.aspect;
  * Created by giang on 17/04/2017.
  */
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,17 +70,19 @@ public class LoggingHandler {
 
         long start = System.currentTimeMillis();
         try {
-            String className = joinPoint.getSignature().getDeclaringTypeName();
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = new Date();
+            String now = dateFormat.format(date);
             String methodName = joinPoint.getSignature().getName();
             Object result = joinPoint.proceed();
             long elapsedTime = System.currentTimeMillis() - start;
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-            log.info("=========> User with ip: " + request.getRemoteAddr() + " is requesting to method " + className
-                    + "." + methodName + "() " + " with arguments: " + Arrays.toString(joinPoint.getArgs())
-                    + " execution time : " + elapsedTime + " ms ");
+            String message = now + " " + request.getRemoteAddr() + " " + request.getMethod() + " " + methodName
+                    + " " + Arrays.toString(joinPoint.getArgs()) + " " + elapsedTime;
+            log.info(message);
             return result;
         } catch (IllegalArgumentException e) {
-            log.info("#######!!!!! Illegal argument " + Arrays.toString(joinPoint.getArgs()) + " in "
+            log.info("!!!!! Illegal argument " + Arrays.toString(joinPoint.getArgs()) + " in "
                     + joinPoint.getSignature().getName() + "()");
             throw e;
         }

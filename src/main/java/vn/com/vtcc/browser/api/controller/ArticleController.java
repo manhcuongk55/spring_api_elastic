@@ -201,23 +201,6 @@ public class ArticleController {
 		return ArticleService.getListArticleByStringInTitle(from, size, title, source, connectivity);
 	}
 
-
-	/* GET LIST OF RELATED ARTICLES */
-	@CrossOrigin
-	@RequestMapping(value = "/related_articles", method = RequestMethod.POST, produces = "application/json")
-	public String postListArticlReleated(@RequestBody JSONObject input, @RequestHeader(value="User-Agent") String userAgent)
-			throws org.json.simple.parser.ParseException, UnknownHostException {
-		String id = input.get("id") == null ? "" : input.get("id").toString();
-		String size = input.get("size") == null ? "10" : input.get("size").toString();
-		String timestamp = input.get("timestamp") == null ? "*" : input.get("size").toString();
-		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
-		String source = input.get("source") == null ? "*" : input.get("source").toString();
-		if (userAgent.indexOf("Darwin") >= 0) {
-			source = input.get("source") == null | source == "*" ? WHITELIST_SOURCE : input.get("source").toString();
-		}
-		return ArticleService.getRelatedArticles(id, size, timestamp, source, connectivity);
-	}
-
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_categories", method = RequestMethod.GET, produces = "application/json")
 	public String getListCategories()
@@ -257,7 +240,6 @@ public class ArticleController {
 		try {
 			String parsedUrl = UrlUtils.convertToURLEscapingIllegalCharacters(input);
 			if (parsedUrl != null) {
-				logger.info("===================> Displaying: " +parsedUrl);
 				URLConnection conn = new URL(parsedUrl).openConnection();
 				conn.setConnectTimeout(5000);
 				conn.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
@@ -268,14 +250,13 @@ public class ArticleController {
 				IOUtils.copy(in, response.getOutputStream());
 			}
 		} catch (IOException e) {
-			logger.error("================> Their server not returning image: " +input);
+			System.out.println("================> Their server not returning image: " +input);
 		}
 	}
 
 	@CrossOrigin
 	@RequestMapping(value = "/fallback_image", method = RequestMethod.POST)
 	public void postImageFromByteArray(@RequestBody String input, HttpServletResponse response) throws IOException {
-		System.out.println("===================> Displaying: " +input);
 		try {
 			response.setContentType(MediaType.IMAGE_JPEG_VALUE);
 			if (input.contains("base64")) {
@@ -305,5 +286,20 @@ public class ArticleController {
 																  @RequestParam(value = "cat_id", defaultValue = "1") String cat_id)
 			throws org.json.simple.parser.ParseException {
 		return ArticleService.getTagsOfEducationCategory(size,cat_id);
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/list_video_articles", method = RequestMethod.POST, produces = "application/json")
+	public String postListVideoArticles(@RequestBody JSONObject input)
+			throws org.json.simple.parser.ParseException, UnknownHostException {
+		String from = input.get("from") == null ? "0" : input.get("from").toString();
+		String size = input.get("size") == null ? "20" : input.get("size").toString();
+		String timestamp = input.get("timestamp") == null ? "0" : input.get("size").toString();
+		//String source = input.get("source") == null ? "*" : input.get("source").toString();
+
+		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
+
+		//return ArticleService.getListArticleByCategoryId(from, size, categoryId,timestamp, source, connectivity);
+		return ArticleService.getListVideoArticles(from, size, connectivity);
 	}
 }

@@ -6,9 +6,7 @@ package vn.com.vtcc.browser.api.aspect;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Enumeration;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -26,6 +24,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Aspect
 @Component
 public class LoggingHandler {
+    private final List<String> BLACKLIST_IPS = Arrays.asList("192.168.107.211", "192.168.107.212","192.168.107.213",
+            "192.168.107.214","192.168.107.215","171.224.122.145");
     Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Pointcut("within(@org.springframework.stereotype.Controller *)")
@@ -67,18 +67,25 @@ public class LoggingHandler {
     //Around -> Any method within resource annotated with @Controller annotation
     @Around("restController()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
-
         long start = System.currentTimeMillis();
         try {
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            String ip_address = request.getRemoteAddr();
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date date = new Date();
             String now = dateFormat.format(date);
             String methodName = joinPoint.getSignature().getName();
             Object result = joinPoint.proceed();
+            if (BLACKLIST_IPS.contains(ip_address)) {
+                return result;
+            }
             long elapsedTime = System.currentTimeMillis() - start;
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+            String params = Arrays.toString(joinPoint.getArgs());
+            String requestParams = params.split("(?<=}, )")[0].replace("[{","{").replace("}, ","}");
+            String notificationId = request.getHeader("notificationId") == null ? "undefined" : request.getHeader("notificationId");
             String message = now + " " + request.getRemoteAddr() + " " + request.getMethod() + " " + methodName
-                    + " " + Arrays.toString(joinPoint.getArgs()) + " " + elapsedTime;
+                    + " " + requestParams + " " + elapsedTime + " " + notificationId;
+
             log.info(message);
             return result;
         } catch (IllegalArgumentException e) {

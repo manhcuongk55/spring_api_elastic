@@ -40,7 +40,24 @@ public class Application extends WebMvcConfigurerAdapter {
 	public static final String MEDIA_HOST_NAME = "http://media.sfive.vn/";
 	public static final String REDIS_KEY = "HOT_TAGS";
 	public static final String REDIS_KEY_IOS = "HOT_TAGS_IOS";
-	public static final String USER_AGENT = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36";
+	public static final String USER_AGENT = "Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36" +
+			" (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36";
+
+	//public static final String WHITELIST_SOURCE = "'tiin.vn','netnews.vn','moison.vn','songkhoe.vn'";
+
+	public static final String WHITELIST_SOURCE_MYSQL = "'tiin.vn','netnews.vn','moison.vn','songkhoe.vn','news.zing.vn'," +
+			"'kenh14.vn','cand.com.vn','ictnews.vn','soha.vn','doisongphapluat.com','vietnamplus.vn','congluan.vn'," +
+			"'infonet.vn','baodatviet.vn','daidoanket.vn','vuathethao.vn','thegioitre.vn','cafef.vn','cafebiz.vn'," +
+			"'thoibaonganhang.vn','nongnghiep.vn','baohaiquan.vn','doanhnhansaigon.vn','enternews.vn','baobaovephapluat.vn'," +
+			"'qdnd.vn','baodauthau.vn','thoibaotaichinhvietnam.vn','congan.com.vn','sggp.org.vn','plo.vn'," +
+			"'baodautu.vn','vtv.vn','khampha.vn','autopro.com.vn','gamek.vn','suckhoedoisong.vn','saostar.vn'";
+
+	public static final String WHITELIST_SOURCE_ES = "tiin.vn,netnews.vn,moison.vn,songkhoe.vn,news.zing.vn," +
+			"kenh14.vn,cand.com.vn,ictnews.vn,soha.vn,doisongphapluat.com,vietnamplus.vn,congluan.vn," +
+			"infonet.vn,baodatviet.vn,daidoanket.vn,vuathethao.vn,thegioitre.vn,cafef.vn,cafebiz.vn," +
+			"thoibaonganhang.vn,nongnghiep.vn,baohaiquan.vn,doanhnhansaigon.vn,enternews.vn,baobaovephapluat.vn," +
+			"qdnd.vn,baodauthau.vn,thoibaotaichinhvietnam.vn,congan.com.vn,sggp.org.vn,plo.vn," +
+			"baodautu.vn,vtv.vn,khampha.vn,autopro.com.vn,gamek.vn,suckhoedoisong.vn,saostar.vn";;
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {

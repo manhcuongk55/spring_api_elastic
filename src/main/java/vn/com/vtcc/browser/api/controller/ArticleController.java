@@ -1,6 +1,7 @@
 package vn.com.vtcc.browser.api.controller;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
 import org.json.simple.JSONObject;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.mobile.device.DevicePlatform;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import sun.misc.BASE64Decoder;
+import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.service.ArticleService;
 import vn.com.vtcc.browser.api.service.CategoryService;
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +28,6 @@ public class ArticleController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	ArticleService ArticleService = new ArticleService();
 	CategoryService CategoryService = new CategoryService();
-	private static final String WHITELIST_SOURCE = "tiin.vn,netnews.vn,moison.vn,songkhoe.vn";
 
 	@CrossOrigin
 	@RequestMapping(value = "/get_article_id", method = RequestMethod.GET, produces = "application/json")
@@ -43,13 +44,13 @@ public class ArticleController {
 	public String getListHotNews(@RequestParam(value = "from", defaultValue = "0") String from,
 								 @RequestParam(value = "size", defaultValue = "20") String size,
 								 @RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
-								 @RequestParam(value = "source", defaultValue = WHITELIST_SOURCE) String source,
+								 @RequestParam(value = "source", defaultValue = Application.WHITELIST_SOURCE_ES) String source,
 								 @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity,
 								 @RequestHeader(value="User-Agent") String userAgent)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 
 		if (userAgent.indexOf("Darwin") >= 0) {
-			source = source == null | source == "*" ? WHITELIST_SOURCE : source;
+			source = source == null | source == "*" ? Application.WHITELIST_SOURCE_ES : source;
 		}
 
 		//return ArticleService.getListHotArticle(from, size, timestamp, source, connectivity);
@@ -65,8 +66,11 @@ public class ArticleController {
 		String timestamp = input.get("timestamp") == null ? "0" : input.get("size").toString();
 		String source = input.get("source") == null ? "*" : input.get("source").toString();
 		if (userAgent.indexOf("Darwin") >= 0) {
-			source = input.get("source") == null | source == "*" ? WHITELIST_SOURCE : input.get("source").toString();
+
+			source = source == "*" ? Application.WHITELIST_SOURCE_ES : input.get("source").toString();
+
 		}
+		//String source = Application.WHITELIST_SOURCE_ES;
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("connectivity").toString();
 
 		//return ArticleService.getListHotArticle(from, size, timestamp, source, connectivity);
@@ -80,7 +84,7 @@ public class ArticleController {
 										   @RequestParam(value = "size", defaultValue = "20") String size,
 										   @RequestParam(value = "categoryId", defaultValue = "0") String categoryId,
 										   @RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
-										   @RequestParam(value = "source", defaultValue = WHITELIST_SOURCE) String source,
+										   @RequestParam(value = "source", defaultValue = Application.WHITELIST_SOURCE_ES) String source,
 										   @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		//return ArticleService.getListArticleByCategoryId(from, size, categoryId,timestamp, source, connectivity);
@@ -96,7 +100,7 @@ public class ArticleController {
 		String timestamp = input.get("timestamp") == null ? "0" : input.get("size").toString();
 		String source = input.get("source") == null ? "*" : input.get("source").toString();
 		if (userAgent.indexOf("Darwin") >= 0) {
-			source = input.get("source") == null | source == "*" ? WHITELIST_SOURCE : input.get("source").toString();
+			source = input.get("source") == null | source == "*" ? Application.WHITELIST_SOURCE_ES : input.get("source").toString();
 		}
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 
@@ -112,10 +116,10 @@ public class ArticleController {
 		String categoryName = input.get("categoryName") == null ? "thoi_su" : input.get("categoryName").toString();
 		String from = input.get("from") == null ? "0" : input.get("from").toString();
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
-		String timestamp = input.get("timestamp") == null ? WHITELIST_SOURCE : input.get("size").toString();
+		String timestamp = input.get("timestamp") == null ? Application.WHITELIST_SOURCE_ES : input.get("size").toString();
 		String source = input.get("source") == null ? "*" : input.get("source").toString();
 		if (userAgent.indexOf("Darwin") >= 0) {
-			source = input.get("source") == null | source == "*" ? WHITELIST_SOURCE : input.get("source").toString();
+			source = input.get("source") == null | source == "*" ? Application.WHITELIST_SOURCE_ES : input.get("source").toString();
 		}
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 
@@ -151,7 +155,7 @@ public class ArticleController {
 
 	@CrossOrigin
 	@RequestMapping(value = "/list_article_related_tags", method = RequestMethod.POST, produces = "application/json")
-	public String postListArticlReleatedTags(@RequestBody JSONObject input)
+	public String postListArticleReleatedTags(@RequestBody JSONObject input)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		String tags = input.get("tags") == null ? "Việt Nam" : input.get("tags").toString();
 		String number = input.get("number") == null ? "5" : input.get("number").toString();
@@ -165,7 +169,7 @@ public class ArticleController {
 
 	/* GET LIST OF RELATED ARTICLES */
 	@RequestMapping(value = "/related_articles", method = RequestMethod.POST, produces = "application/json")
-	public String postListArticlReleated(@RequestBody JSONObject input, @RequestHeader(value="User-Agent") String userAgent)
+	public String postListArticleReleated(@RequestBody JSONObject input, @RequestHeader(value="User-Agent") String userAgent)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		String id = input.get("id") == null ? "" : input.get("id").toString();
 		String size = input.get("size") == null ? "10" : input.get("size").toString();
@@ -173,7 +177,7 @@ public class ArticleController {
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 		String source = input.get("source") == null ? "*" : input.get("source").toString();
 		if (userAgent.indexOf("Darwin") >= 0) {
-			source = input.get("source") == null | source == "*" ? WHITELIST_SOURCE : input.get("source").toString();
+			source = input.get("source") == null | source == "*" ? Application.WHITELIST_SOURCE_ES : input.get("source").toString();
 		}
 		return ArticleService.getRelatedArticles(id, size, timestamp, source, connectivity);
 	}
@@ -181,22 +185,22 @@ public class ArticleController {
 	/* Get articles by title */
 	@CrossOrigin
 	@RequestMapping(value = "/get_list_article_tittle", method = RequestMethod.GET, produces = "application/json")
-	public String getListArticlSearchByTitle(@RequestParam(value = "from", defaultValue = "0") String from,
+	public String getListArticleSearchByTitle(@RequestParam(value = "from", defaultValue = "0") String from,
 											 @RequestParam(value = "size", defaultValue = "20") String size,
 											 @RequestParam(value = "title", defaultValue = "title") String title,
-											 @RequestParam(value = "source", defaultValue = WHITELIST_SOURCE) String source,
+											 @RequestParam(value = "source", defaultValue = Application.WHITELIST_SOURCE_ES) String source,
 											 @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		return ArticleService.getListArticleByStringInTitle(from, size, title, source, connectivity);
 	}
 	@CrossOrigin
 	@RequestMapping(value = "/list_article_tittle", method = RequestMethod.GET, produces = "application/json")
-	public String postListArticlSearchByTitle(@RequestBody JSONObject input)
+	public String postListArticleSearchByTitle(@RequestBody JSONObject input)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		String title = input.get("title") == null ? "*" : input.get("title").toString();
 		String from = input.get("from") == null ? "0" : input.get("from").toString();
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
-		String source = input.get("source") == null ? WHITELIST_SOURCE : input.get("size").toString();
+		String source = input.get("source") == null ? Application.WHITELIST_SOURCE_ES : input.get("size").toString();
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 		return ArticleService.getListArticleByStringInTitle(from, size, title, source, connectivity);
 	}
@@ -226,12 +230,9 @@ public class ArticleController {
 	@RequestMapping(value = "/get_hot_tags", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> getHotTags(Device device)
 			throws org.json.simple.parser.ParseException {
-		DevicePlatform platform = device.getDevicePlatform();
-		if (platform.equals(DevicePlatform.IOS)) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-		} else {
-			return ArticleService.getHotTags();
-		}
+
+		return ArticleService.getHotTags();
+
 	}
 
 	@CrossOrigin
@@ -284,7 +285,7 @@ public class ArticleController {
 	@RequestMapping(value = "/list_tags_education", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<Object> getListTagsForEducationCategory(@RequestParam(value = "size", defaultValue = "10") String size,
 																  @RequestParam(value = "cat_id", defaultValue = "1") String cat_id)
-			throws org.json.simple.parser.ParseException {
+			throws org.json.simple.parser.ParseException, JSONException {
 		return ArticleService.getTagsOfEducationCategory(size,cat_id);
 	}
 
@@ -301,5 +302,12 @@ public class ArticleController {
 
 		//return ArticleService.getListArticleByCategoryId(from, size, categoryId,timestamp, source, connectivity);
 		return ArticleService.getListVideoArticles(from, size, connectivity);
+	}
+
+	@CrossOrigin
+	@RequestMapping(value = "/parse_html", method = RequestMethod.POST)
+	public String[] parseHtml(@RequestBody String content)
+			throws org.json.simple.parser.ParseException {
+		return ArticleService.parseHtml(content);
 	}
 }

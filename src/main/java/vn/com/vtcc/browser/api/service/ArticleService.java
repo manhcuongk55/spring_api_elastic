@@ -7,7 +7,9 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MoreLikeThisQueryBuilder.Item;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryBuilders.*;
 import java.io.*;
@@ -26,6 +28,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.glassfish.jersey.client.ClientProperties;
+import org.json.JSONException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -46,7 +49,8 @@ public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
 	private static final String[] BLACKLIST_FIELDS = {"raw_content", "canonical"};
-	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source","url","tags", "id"};
+	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source",
+						"url","tags", "id","content","snippet","category"};
 	private static final String[] MORE_LIKE_THIS_FIELDS = {"tags", "title", "category"};
 
 	Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
@@ -57,7 +61,7 @@ public class ArticleService {
 
 	public ArticleService() {
 		try {
-			this.esClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.233"), 9300))
+			this.esClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.231"), 9300))
                     	.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.232"), 9300))
 						.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.233"), 9300))
 						.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.234"), 9300))
@@ -66,7 +70,6 @@ public class ArticleService {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.201", 3001));
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.202", 3001));
 		this.jedisClusterNodes.add(new HostAndPort("192.168.107.203", 3001));
@@ -81,10 +84,13 @@ public class ArticleService {
 		return now;
 	}
 
-	public String getListHotArticles(String from, String size, String timestamp,String source, String connectivity) throws ParseException, UnknownHostException {
+	public String getListHotArticles(String from, String size, String timestamp,String source, String connectivity)
+			throws ParseException, UnknownHostException {
 		List<String> sources = Arrays.asList(source.split(","));
-		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article").setSearchType(SearchType.QUERY_THEN_FETCH)
-									.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1)));
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4")
+							.setTypes("article").setSearchType(SearchType.QUERY_THEN_FETCH)
+							.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1)));
+		System.out.println(source);
 		if (!sources.contains("*")) {
 			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
 		}
@@ -99,7 +105,8 @@ public class ArticleService {
 		return ElasticsearchUtils.convertEsResultToString(response);
 	}
 
-	public String getListArticleByCatId(String from, String size, String categoryId, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
+	public String getListArticleByCatId(String from, String size, String categoryId, String timestamp, String source,
+										String connectivity) throws ParseException, UnknownHostException {
 		List<String> sources = Arrays.asList(source.split(","));
 
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
@@ -121,7 +128,8 @@ public class ArticleService {
 	}
 
 
-	public String getListArticleByCatName(String from, String size, String categoryName, String timestamp, String source, String connectivity) throws ParseException, UnknownHostException {
+	public String getListArticleByCatName(String from, String size, String categoryName, String timestamp, String source,
+										  String connectivity) throws ParseException, UnknownHostException {
 		List<String> sources = Arrays.asList(source.split(","));
 
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
@@ -144,7 +152,6 @@ public class ArticleService {
 
 	public JSONArray getSourceImage(JSONObject input) throws UnknownHostException {
 		JSONArray results = (JSONArray) input.get("hits");
-		//String host = InetAddress.getLocalHost().getHostAddress();
 		if (results != null) {
 			for (int i =0; i < results.size(); i++) {
 				JSONObject hit = (JSONObject) results.get(i);
@@ -196,31 +203,34 @@ public class ArticleService {
 	public String getListArticleByTags(String from, String size, String inputTags, String timestamp, String source, String connectivity) {
 		List<String> sources = Arrays.asList(source.split(","));
 		List<String> tags = Arrays.asList(inputTags.split(","));
-		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
-				.setSearchType(SearchType.QUERY_THEN_FETCH)
-				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1)))
-				.setPostFilter(QueryBuilders.termsQuery("tags", tags));
+		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
+				.must(QueryBuilders.termQuery("display",1))
+				.filter(QueryBuilders.termsQuery("tags", tags));
 		if (!sources.contains("*")) {
-			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
+			boolQuery.filter(QueryBuilders.termsQuery("source",sources));
 		}
+		SearchRequestBuilder query = this.esClient.prepareSearch("br_article_v4")
+				.setTypes("article").setQuery(boolQuery);
 
 		if (!connectivity.equals("wifi")) {
-			req.setFetchSource(WHITELIST_FIELDS,null);
+			query.setFetchSource(WHITELIST_FIELDS,null);
 		}  else {
-			req.setFetchSource(null,BLACKLIST_FIELDS);
+			query.setFetchSource(null,BLACKLIST_FIELDS);
 		}
-		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
+		SearchResponse response = query.addSort("time_post", SortOrder.DESC)
 				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
 
 		return ElasticsearchUtils.convertEsResultToString(response);
 	}
 
-	public String getListArticleByStringInTitle(String from, String size, String value, String source, String connectivity) throws ParseException, UnknownHostException {
+	public String getListArticleByStringInTitle(String from, String size, String value, String source, String connectivity)
+			throws ParseException, UnknownHostException {
 		String path = "";
 		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
 		try {
-			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc" + "&q=display:"+Application.STATUS_DISPLAY+" AND title:"
+			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
+					+ "&q=display:"+Application.STATUS_DISPLAY+" AND title:"
 					+ URLEncoder.encode("\"" + value + "\"", "UTF-8") + " AND source:" + source + ES_FIELDS;
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
@@ -299,7 +309,7 @@ public class ArticleService {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 	}
 
-	public ResponseEntity<Object> getTagsOfEducationCategory(String size, String category_id) {
+	public ResponseEntity<Object> getTagsOfEducationCategory(String size, String category_id) throws JSONException {
 
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
 				.setSearchType(SearchType.QUERY_THEN_FETCH)
@@ -326,5 +336,13 @@ public class ArticleService {
 				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
 
 		return ElasticsearchUtils.convertEsResultToString(response);
+	}
+
+	public String[] parseHtml(String content) {
+		String[] result = new String[0];
+		if (content != "" && content.length() > 0) {
+			result = content.split("(?<=/p>|/div>|/br>|tr>|td>|thead>|tbody> )");
+		}
+		return result;
 	}
 }

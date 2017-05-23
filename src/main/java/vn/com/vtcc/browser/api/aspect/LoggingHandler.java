@@ -43,19 +43,6 @@ public class LoggingHandler {
     public void logAnyFunctionWithinResource() {
     }
 
-    //before -> Any resource annotated with @RestController annotation
-    //and all method and function taking HttpServletRequest as first parameter
-
-    /*@Before("restController()")
-    public void logBefore(JoinPoint joinPoint) {
-        String className = joinPoint.getSignature().getDeclaringTypeName();
-        String methodName = joinPoint.getSignature().getName();
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        if (request != null) {
-            log.info("The user with ip: " + request.getRemoteAddr() + " is requesting to method " + className + "."
-                    + methodName + "() " + " with arguments: " + Arrays.toString(joinPoint.getArgs()));
-        }
-    }*/
     //After -> All method within resource annotated with @Controller annotation
     // and return a  value
     @AfterReturning(pointcut = "controller() && restController()", returning = "result")

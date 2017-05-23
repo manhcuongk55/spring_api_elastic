@@ -1,6 +1,10 @@
 package vn.com.vtcc.browser.api.controller;
 
 import org.apache.commons.io.IOUtils;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -26,6 +30,8 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by giang on 10/03/2017.
@@ -39,6 +45,7 @@ public class SourceController {
     public static String LOCAL_FAVICON_API = "https://icons.better-idea.org/allicons.json?url=";
     //public static String LOCAL_FAVICON_API = "http://192.168.107.227:8181/allicons.json?url=";
 
+
     @CrossOrigin
     @RequestMapping(value = "/get_sources", method = RequestMethod.GET, produces = "application/json")
     public String getListSources(Device device)
@@ -46,7 +53,7 @@ public class SourceController {
         String whitelist_sources = "*";
         DevicePlatform platform = device.getDevicePlatform();
         if (platform.equals(DevicePlatform.IOS)) {
-            whitelist_sources = "'tiin.vn','netnews.vn','moison.vn','songkhoe.vn'";
+            whitelist_sources = Application.WHITELIST_SOURCE_MYSQL;
         }
         return sourceService.getSourcesFromDatabase(whitelist_sources);
     }

@@ -4,18 +4,14 @@ import com.google.gson.Gson;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.springframework.http.ResponseEntity;
+
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
-import vn.com.vtcc.browser.api.model.Category;
 import vn.com.vtcc.browser.api.model.Site;
 import vn.com.vtcc.browser.api.model.Source;
 import vn.com.vtcc.browser.api.utils.HibernateUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by giang on 10/03/2017.
@@ -34,6 +30,7 @@ public class SourceService {
         this.jedisClusterNodes.add(new HostAndPort("192.168.107.205", 3001));
         this.jedisClusterNodes.add(new HostAndPort("192.168.107.206", 3001));
         this.jc = new JedisCluster(this.jedisClusterNodes);
+
     }
 
     public String getSourcesFromDatabase(String whitelist_source) {
@@ -67,6 +64,7 @@ public class SourceService {
         }
         return strSources;
     }
+
 
     public String suggestSources(String input, String size) {
         String sql = "Select e from " + Site.class.getName() + " e where e.link like '%" + input + "%' order by e.priority ASC ";

@@ -20,10 +20,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by giang on 20/05/2017.
@@ -102,31 +100,36 @@ public class LoggingService {
     public JSONObject getListDeviceIdsByCategoryId(String id, String from, String size) {
         JSONObject results      = new JSONObject();
         JSONObject metadata     = new JSONObject();
-        JSONArray data          = new JSONArray();
+        ArrayList<String> data  = new ArrayList<>();
         String categoryId       = "categoryId:" + id;
         DateFormat dateFormat   = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
 
         try {
             JSONObject input = (JSONObject) this.getListDeviceIdsFromAllCategories().get("data");
+            int total = 0;
             Iterator<?> keys = input.keys();
-            int countFrom = 0;
 
             /* Process to group firebase Id to category */
-            while (keys.hasNext() && data.length() < Integer.parseInt(size)) {
+            while (keys.hasNext()){
                 String key = (String) keys.next();
                 JSONObject obj = (JSONObject) input.get(key);
-                if (obj.has(categoryId) && countFrom > Integer.parseInt(from)) {
-                    data.put(key);
+                if (obj.has(categoryId)) {
+                    data.add(key);
+                    total++;
                 }
-                countFrom++;
             }
+            ArrayList<String> res = data.stream()
+                    .skip(Integer.parseInt(from) + Integer.parseInt(size))
+                    .limit(Integer.parseInt(size))
+                    .collect(Collectors.toCollection(ArrayList::new));
 
             metadata.put("date", dateFormat.format(date));
             metadata.put("name", categoryId);
-            metadata.put("total", data.length());
+            metadata.put("total", total);
+            metadata.put("size", Integer.parseInt(size));
             metadata.put("from", Integer.parseInt(from));
-            results.put("data",data);
+            results.put("data",res);
             results.put("metadata", metadata);
         } catch (Exception e) {
             e.printStackTrace();

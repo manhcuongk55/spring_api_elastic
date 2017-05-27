@@ -26,6 +26,8 @@ public class Source implements Serializable {
     private String favicon;
     @Column(name = "status")
     private String status;
+    @Column(name = "filter")
+    private String filter;
 
 
     public Source() {

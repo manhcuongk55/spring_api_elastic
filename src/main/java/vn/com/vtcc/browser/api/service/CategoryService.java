@@ -16,20 +16,26 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
+import vn.com.vtcc.browser.api.Application;
+import vn.com.vtcc.browser.api.config.ProductionConfig;
 import vn.com.vtcc.browser.api.model.Category;
 import vn.com.vtcc.browser.api.utils.HibernateUtils;
 
 public class CategoryService {
 	Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 	JedisCluster jc = new JedisCluster(jedisClusterNodes);
+	private String[] hosts = {""};
 
 	public CategoryService() {
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.201", 3001));
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.202", 3001));
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.203", 3001));
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.204", 3001));
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.205", 3001));
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.206", 3001));
+		if (Application.PRODUCTION_ENV == true) {
+			this.hosts = ProductionConfig.REDIS_HOST_PRODUCTION;
+		} else {
+			this.hosts = ProductionConfig.REDIS_HOST_STAGING;
+		}
+
+		for (String host : this.hosts) {
+			this.jedisClusterNodes.add(new HostAndPort(host, ProductionConfig.REDIS_PORT));
+		}
 		this.jc = new JedisCluster(this.jedisClusterNodes);
 	}
 

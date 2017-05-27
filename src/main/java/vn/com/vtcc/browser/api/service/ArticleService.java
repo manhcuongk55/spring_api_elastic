@@ -41,6 +41,7 @@ import org.springframework.stereotype.Component;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import vn.com.vtcc.browser.api.Application;
+import vn.com.vtcc.browser.api.config.ProductionConfig;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
 import vn.com.vtcc.browser.api.utils.ElasticsearchUtils;
 import vn.com.vtcc.browser.api.utils.TextUtils;
@@ -52,31 +53,38 @@ public class ArticleService {
 	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source",
 						"url","tags", "id","content","snippet","category"};
 	private static final String[] MORE_LIKE_THIS_FIELDS = {"tags", "title", "category"};
+	private String[] redisHosts = {""};
+	private String[] esHosts = {""};
 
 	Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 	JedisCluster jc = new JedisCluster(jedisClusterNodes);
-	Settings settings = Settings.builder().put("cluster.name", "vbrowser")
+	Settings settings = Settings.builder().put("cluster.name", Application.ES_CLUSTER_NAME)
 						.put("client.transport.sniff", true).build();
 	TransportClient esClient = new PreBuiltTransportClient(settings);
 
 	public ArticleService() {
+
 		try {
-			this.esClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.231"), 9300))
-                    	.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.232"), 9300))
-						.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.233"), 9300))
-						.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.234"), 9300))
-						.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.235"), 9300))
-						.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.236"), 9300));
+			if (Application.PRODUCTION_ENV == true) {
+				this.redisHosts = ProductionConfig.REDIS_HOST_PRODUCTION;
+				this.esHosts = ProductionConfig.ES_HOST_PRODUCTION;
+			} else {
+				this.redisHosts = ProductionConfig.REDIS_HOST_STAGING;
+				this.esHosts = ProductionConfig.ES_HOST_STAGING;
+			}
+			for (String esHost : this.esHosts) {
+				this.esClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(esHost),
+						ProductionConfig.ES_TRANSPORT_PORT));
+			}
+			for (String redisHost : this.redisHosts) {
+				this.jedisClusterNodes.add(new HostAndPort(redisHost, ProductionConfig.REDIS_PORT));
+			}
+			this.jc = new JedisCluster(this.jedisClusterNodes);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.201", 3001));
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.202", 3001));
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.203", 3001));
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.204", 3001));
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.205", 3001));
-		this.jedisClusterNodes.add(new HostAndPort("192.168.107.206", 3001));
-		this.jc = new JedisCluster(this.jedisClusterNodes);
+
+
 	}
 
 	public static Timestamp getTimeStampNow() {
@@ -90,7 +98,6 @@ public class ArticleService {
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4")
 							.setTypes("article").setSearchType(SearchType.QUERY_THEN_FETCH)
 							.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1)));
-		System.out.println(source);
 		if (!sources.contains("*")) {
 			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
 		}
@@ -108,7 +115,6 @@ public class ArticleService {
 	public String getListArticleByCatId(String from, String size, String categoryId, String timestamp, String source,
 										String connectivity) throws ParseException, UnknownHostException {
 		List<String> sources = Arrays.asList(source.split(","));
-
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
 				.setSearchType(SearchType.QUERY_THEN_FETCH)
 				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1))
@@ -159,7 +165,7 @@ public class ArticleService {
 					JSONObject _source = (JSONObject) hit.get("_source");
 					String source = (String) _source.get("source");
 					if (source != null) {
-						_source.put("source_favicon", Application.MEDIA_HOST_NAME + "/images/" + source + ".png");
+						_source.put("source_favicon", ProductionConfig.MEDIA_HOST_NAME + "/images/" + source + ".png");
 					}
 				}
 			}
@@ -169,7 +175,7 @@ public class ArticleService {
 
 	public String getRelatedArticles(String id, String size, String timestamp, String source, String connectivity) {
 		List<String> sources = Arrays.asList(source.split(","));
-		Item itemLikeThis = new Item(Application.ES_INDEX_NAME, Application.ES_INDEX_TYPE, id);
+		Item itemLikeThis = new Item(ProductionConfig.ES_INDEX_NAME, ProductionConfig.ES_INDEX_TYPE, id);
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
 				.setQuery(QueryBuilders.boolQuery()
 						.must(QueryBuilders.moreLikeThisQuery(MORE_LIKE_THIS_FIELDS, new Item[]{itemLikeThis}).minTermFreq(1))
@@ -229,8 +235,8 @@ public class ArticleService {
 		String ES_FIELDS = "&_source_exclude=raw_content,canonical";
 		if (!connectivity.equals("wifi")) { ES_FIELDS = "&_source=title,time_post,images,source,url,tags"; }
 		try {
-			path = Application.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
-					+ "&q=display:"+Application.STATUS_DISPLAY+" AND title:"
+			path = ProductionConfig.URL_ELASTICSEARCH + "&size=" + size + "&from=" + from + "&sort=time_post:desc"
+					+ "&q=display:"+ProductionConfig.STATUS_DISPLAY+" AND title:"
 					+ URLEncoder.encode("\"" + value + "\"", "UTF-8") + " AND source:" + source + ES_FIELDS;
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
@@ -241,7 +247,7 @@ public class ArticleService {
 				.register(JacksonJsonProvider.class);
 		WebTarget rootTarget = client.target(path);
 		Response response = rootTarget.request().get();
-		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
+		if (response.getStatus() == ProductionConfig.RESPONE_STATAUS_OK) {
 			JSONParser parser = new JSONParser();
 			JSONObject json = new JSONObject();
 			JSONArray msg = new JSONArray();
@@ -264,7 +270,7 @@ public class ArticleService {
 	public ResponseEntity<Object> updateRedisHotTags(String input) {
 		if (input != "") {
 			try {
-				this.jc.set(Application.REDIS_KEY, input);
+				this.jc.set(ProductionConfig.REDIS_KEY, input);
 				return ResponseEntity.ok("Update success");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -276,7 +282,7 @@ public class ArticleService {
 	public ResponseEntity<Object> updateRedisHotTagsIOS(String input) {
 		if (input != "") {
 			try {
-				this.jc.set(Application.REDIS_KEY_IOS, input);
+				this.jc.set(ProductionConfig.REDIS_KEY_IOS, input);
 				return ResponseEntity.ok("Update success");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -287,7 +293,7 @@ public class ArticleService {
 
 	public ResponseEntity<Object> getHotTags() {
 		try {
-			String tags = this.jc.get(Application.REDIS_KEY);
+			String tags = this.jc.get(ProductionConfig.REDIS_KEY);
 			if (tags != null) {
 				return ResponseEntity.ok(tags);
 			}
@@ -299,7 +305,7 @@ public class ArticleService {
 
 	public ResponseEntity<Object> getHotTagsIOS() {
 		try {
-			String tags = this.jc.get(Application.REDIS_KEY_IOS);
+			String tags = this.jc.get(ProductionConfig.REDIS_KEY_IOS);
 			if (tags != null) {
 				return ResponseEntity.ok(tags);
 			}

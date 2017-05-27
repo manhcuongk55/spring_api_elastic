@@ -14,6 +14,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
+import vn.com.vtcc.browser.api.Application;
+import vn.com.vtcc.browser.api.config.ProductionConfig;
 import vn.com.vtcc.browser.api.utils.ElasticsearchUtils;
 
 import java.net.InetAddress;
@@ -31,13 +33,22 @@ public class LoggingService {
     private static final String DEVICE_NOTIFICATION_KEY = "device_id";
     private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
     private static final String START_DATE = "2017-05-17T00:00:00";
-    Settings settings = Settings.builder().put("cluster.name", "vbrowser")
+    Settings settings = Settings.builder().put("cluster.name", "sfive")
             .put("client.transport.sniff", true).build();
     TransportClient esClient = new PreBuiltTransportClient(settings);
+    private String[] esHosts = {""};
 
     public LoggingService() {
         try {
-            this.esClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("192.168.107.231"), 9300));
+            if (Application.PRODUCTION_ENV == true) {
+                this.esHosts = ProductionConfig.ES_HOST_PRODUCTION;
+            } else {
+                this.esHosts = ProductionConfig.ES_HOST_STAGING;
+            }
+            for (String esHost : this.esHosts) {
+                this.esClient.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(esHost),
+                        ProductionConfig.ES_TRANSPORT_PORT));
+            }
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -120,7 +131,7 @@ public class LoggingService {
                 }
             }
             ArrayList<String> res = data.stream()
-                    .skip(Integer.parseInt(from) + Integer.parseInt(size))
+                    .skip(Integer.parseInt(from))
                     .limit(Integer.parseInt(size))
                     .collect(Collectors.toCollection(ArrayList::new));
 

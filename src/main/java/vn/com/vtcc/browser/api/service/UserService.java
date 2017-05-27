@@ -15,6 +15,7 @@ import org.json.simple.parser.ParseException;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import vn.com.vtcc.browser.api.Application;
+import vn.com.vtcc.browser.api.config.ProductionConfig;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
 import vn.com.vtcc.browser.api.model.User;
 import vn.com.vtcc.browser.api.utils.HibernateUtils;
@@ -25,9 +26,9 @@ public class UserService {
 	public  User loginByGoogle(String access_token) throws ParseException {
 		User userResponse = new User();
 		User userUpdate = new User();
-		WebTarget rootTarget = client.target(Application.URL_GOOGLE + access_token);
+		WebTarget rootTarget = client.target(ProductionConfig.URL_GOOGLE + access_token);
 		Response response = rootTarget.request().get(); // Call get method
-		if (response.getStatus() == Application.RESPONE_STATAUS_OK) {
+		if (response.getStatus() == ProductionConfig.RESPONE_STATAUS_OK) {
 			JSONParser parser = new JSONParser();
 			JSONObject json = new JSONObject();
 			json = (JSONObject) parser.parse(response.readEntity(JSONObject.class).toString());

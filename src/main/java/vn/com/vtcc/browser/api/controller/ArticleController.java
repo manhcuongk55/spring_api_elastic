@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import sun.misc.BASE64Decoder;
 import vn.com.vtcc.browser.api.Application;
+import vn.com.vtcc.browser.api.config.ProductionConfig;
 import vn.com.vtcc.browser.api.service.ArticleService;
 import vn.com.vtcc.browser.api.service.CategoryService;
 import javax.servlet.http.HttpServletResponse;
@@ -44,15 +45,13 @@ public class ArticleController {
 	public String getListHotNews(@RequestParam(value = "from", defaultValue = "0") String from,
 								 @RequestParam(value = "size", defaultValue = "20") String size,
 								 @RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
-								 @RequestParam(value = "source", defaultValue = Application.WHITELIST_SOURCE_ES) String source,
+								 @RequestParam(value = "source", defaultValue = ProductionConfig.WHITELIST_SOURCE_ES) String source,
 								 @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity,
 								 @RequestHeader(value="User-Agent") String userAgent)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
-
-		if (userAgent.indexOf("Darwin") >= 0) {
-			source = source == null | source == "*" ? Application.WHITELIST_SOURCE_ES : source;
-		}
-
+		//if (userAgent.indexOf("Darwin") >= 0) {
+		source = source == null | source == "*" ? ProductionConfig.WHITELIST_SOURCE_ES : source;
+		//}
 		//return ArticleService.getListHotArticle(from, size, timestamp, source, connectivity);
 		return ArticleService.getListHotArticles(from, size, timestamp, source, connectivity);
 	}
@@ -65,11 +64,7 @@ public class ArticleController {
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
 		String timestamp = input.get("timestamp") == null ? "0" : input.get("size").toString();
 		String source = input.get("source") == null ? "*" : input.get("source").toString();
-		if (userAgent.indexOf("Darwin") >= 0) {
-
-			source = source == "*" ? Application.WHITELIST_SOURCE_ES : input.get("source").toString();
-
-		}
+		source = source == "*" ? ProductionConfig.WHITELIST_SOURCE_ES : input.get("source").toString();
 		//String source = Application.WHITELIST_SOURCE_ES;
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("connectivity").toString();
 
@@ -84,12 +79,13 @@ public class ArticleController {
 										   @RequestParam(value = "size", defaultValue = "20") String size,
 										   @RequestParam(value = "categoryId", defaultValue = "0") String categoryId,
 										   @RequestParam(value = "timestamp", defaultValue = "0") String timestamp,
-										   @RequestParam(value = "source", defaultValue = Application.WHITELIST_SOURCE_ES) String source,
+										   @RequestParam(value = "source", defaultValue = ProductionConfig.WHITELIST_SOURCE_ES) String source,
 										   @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		//return ArticleService.getListArticleByCategoryId(from, size, categoryId,timestamp, source, connectivity);
 		return ArticleService.getListArticleByCatId(from, size, categoryId,timestamp, source, connectivity);
 	}
+
 	@CrossOrigin
 	@RequestMapping(value = "/list_article_categoryId", method = RequestMethod.POST, produces = "application/json")
 	public String postListArticlesByCategor(@RequestBody JSONObject input , @RequestHeader(value="User-Agent") String userAgent)
@@ -99,9 +95,7 @@ public class ArticleController {
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
 		String timestamp = input.get("timestamp") == null ? "0" : input.get("size").toString();
 		String source = input.get("source") == null ? "*" : input.get("source").toString();
-		if (userAgent.indexOf("Darwin") >= 0) {
-			source = input.get("source") == null | source == "*" ? Application.WHITELIST_SOURCE_ES : input.get("source").toString();
-		}
+		source = input.get("source") == null | source == "*" ? ProductionConfig.WHITELIST_SOURCE_ES : input.get("source").toString();
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 
 		//return ArticleService.getListArticleByCategoryId(from, size, categoryId,timestamp, source, connectivity);
@@ -116,11 +110,9 @@ public class ArticleController {
 		String categoryName = input.get("categoryName") == null ? "thoi_su" : input.get("categoryName").toString();
 		String from = input.get("from") == null ? "0" : input.get("from").toString();
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
-		String timestamp = input.get("timestamp") == null ? Application.WHITELIST_SOURCE_ES : input.get("size").toString();
+		String timestamp = input.get("timestamp") == null ? ProductionConfig.WHITELIST_SOURCE_ES : input.get("size").toString();
 		String source = input.get("source") == null ? "*" : input.get("source").toString();
-		if (userAgent.indexOf("Darwin") >= 0) {
-			source = input.get("source") == null | source == "*" ? Application.WHITELIST_SOURCE_ES : input.get("source").toString();
-		}
+		source = input.get("source") == null | source == "*" ? ProductionConfig.WHITELIST_SOURCE_ES : input.get("source").toString();
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 
 		//return ArticleService.getListArticleByCategoryName(from, size, categoryName, timestamp,source, connectivity);
@@ -176,9 +168,8 @@ public class ArticleController {
 		String timestamp = input.get("timestamp") == null ? "*" : input.get("size").toString();
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 		String source = input.get("source") == null ? "*" : input.get("source").toString();
-		if (userAgent.indexOf("Darwin") >= 0) {
-			source = input.get("source") == null | source == "*" ? Application.WHITELIST_SOURCE_ES : input.get("source").toString();
-		}
+		source = input.get("source") == null | source == "*" ? ProductionConfig.WHITELIST_SOURCE_ES : input.get("source").toString();
+
 		return ArticleService.getRelatedArticles(id, size, timestamp, source, connectivity);
 	}
 
@@ -188,7 +179,7 @@ public class ArticleController {
 	public String getListArticleSearchByTitle(@RequestParam(value = "from", defaultValue = "0") String from,
 											 @RequestParam(value = "size", defaultValue = "20") String size,
 											 @RequestParam(value = "title", defaultValue = "title") String title,
-											 @RequestParam(value = "source", defaultValue = Application.WHITELIST_SOURCE_ES) String source,
+											 @RequestParam(value = "source", defaultValue = ProductionConfig.WHITELIST_SOURCE_ES) String source,
 											 @RequestParam(value = "connectivity", defaultValue = "wifi") String connectivity)
 			throws org.json.simple.parser.ParseException, UnknownHostException {
 		return ArticleService.getListArticleByStringInTitle(from, size, title, source, connectivity);
@@ -200,7 +191,7 @@ public class ArticleController {
 		String title = input.get("title") == null ? "*" : input.get("title").toString();
 		String from = input.get("from") == null ? "0" : input.get("from").toString();
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
-		String source = input.get("source") == null ? Application.WHITELIST_SOURCE_ES : input.get("size").toString();
+		String source = input.get("source") == null ? ProductionConfig.WHITELIST_SOURCE_ES : input.get("size").toString();
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
 		return ArticleService.getListArticleByStringInTitle(from, size, title, source, connectivity);
 	}
@@ -297,9 +288,7 @@ public class ArticleController {
 		String size = input.get("size") == null ? "20" : input.get("size").toString();
 		String timestamp = input.get("timestamp") == null ? "0" : input.get("size").toString();
 		//String source = input.get("source") == null ? "*" : input.get("source").toString();
-
 		String connectivity = input.get("connectivity") == null ? "wifi" : input.get("size").toString();
-
 		//return ArticleService.getListArticleByCategoryId(from, size, categoryId,timestamp, source, connectivity);
 		return ArticleService.getListVideoArticles(from, size, connectivity);
 	}

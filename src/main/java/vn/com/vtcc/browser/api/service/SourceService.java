@@ -7,6 +7,8 @@ import org.hibernate.query.Query;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
+import vn.com.vtcc.browser.api.Application;
+import vn.com.vtcc.browser.api.config.ProductionConfig;
 import vn.com.vtcc.browser.api.model.Site;
 import vn.com.vtcc.browser.api.model.Source;
 import vn.com.vtcc.browser.api.utils.HibernateUtils;
@@ -21,24 +23,28 @@ public class SourceService {
     JedisCluster jc = new JedisCluster(jedisClusterNodes);
     private static String REDIS_SITES = "sites_by_topic";
     private static String REDIS_SITES_BY_CATEGORY = "sites_by_category";
+    private String[] hosts = {""};
 
     public SourceService() {
-        this.jedisClusterNodes.add(new HostAndPort("192.168.107.201", 3001));
-        this.jedisClusterNodes.add(new HostAndPort("192.168.107.202", 3001));
-        this.jedisClusterNodes.add(new HostAndPort("192.168.107.203", 3001));
-        this.jedisClusterNodes.add(new HostAndPort("192.168.107.204", 3001));
-        this.jedisClusterNodes.add(new HostAndPort("192.168.107.205", 3001));
-        this.jedisClusterNodes.add(new HostAndPort("192.168.107.206", 3001));
+        if (Application.PRODUCTION_ENV == true) {
+            this.hosts = ProductionConfig.REDIS_HOST_PRODUCTION;
+        } else {
+            this.hosts = ProductionConfig.REDIS_HOST_STAGING;
+        }
+
+        for (String host : this.hosts) {
+            this.jedisClusterNodes.add(new HostAndPort(host, ProductionConfig.REDIS_PORT));
+        }
         this.jc = new JedisCluster(this.jedisClusterNodes);
 
     }
 
     public String getSourcesFromDatabase(String whitelist_source) {
         String redisName = "SOURCES";
-        String sql = "Select e from " + Source.class.getName() + " e " + " where e.status='1' order by e.id";
+        String sql = "Select e from " + Source.class.getName() + " e " + " where e.filter='1' order by e.id";
         if (!whitelist_source.equals("*")) {
             redisName = "SOURCES_IOS";
-            sql = "Select e from " + Source.class.getName() + " e " + " where e.status='1' and e.name in (" + whitelist_source + ") order by e.id";
+            sql = "Select e from " + Source.class.getName() + " e " + " where e.filter='1' and e.name in (" + whitelist_source + ") order by e.id";
         }
 
         String strSources = this.jc.get(redisName);

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
 import vn.com.vtcc.browser.api.Application;
+import vn.com.vtcc.browser.api.config.ProductionConfig;
 import vn.com.vtcc.browser.api.service.SourceService;
 import vn.com.vtcc.browser.api.utils.TextUtils;
 
@@ -53,7 +54,7 @@ public class SourceController {
         String whitelist_sources = "*";
         DevicePlatform platform = device.getDevicePlatform();
         if (platform.equals(DevicePlatform.IOS)) {
-            whitelist_sources = Application.WHITELIST_SOURCE_MYSQL;
+            whitelist_sources = ProductionConfig.WHITELIST_SOURCE_MYSQL;
         }
         return sourceService.getSourcesFromDatabase(whitelist_sources);
     }
@@ -66,7 +67,7 @@ public class SourceController {
         response.setContentType(MediaType.IMAGE_PNG_VALUE);
         try {
             String googleUrl = GOOGLE_API_LOGO + input.replace("google.com.vn", "google.com");
-            Document doc1 = Jsoup.connect(googleUrl).userAgent(Application.USER_AGENT).timeout(10 * 1000).get();
+            Document doc1 = Jsoup.connect(googleUrl).userAgent(ProductionConfig.USER_AGENT).timeout(10 * 1000).get();
             String media = doc1.select("div#rg_s div a img").first().attr("name");
 
             String script = doc1.select("script:containsData(var data=)").first().toString();

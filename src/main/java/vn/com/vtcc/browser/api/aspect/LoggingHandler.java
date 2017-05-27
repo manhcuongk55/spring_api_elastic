@@ -25,7 +25,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class LoggingHandler {
     private final List<String> BLACKLIST_IPS = Arrays.asList("192.168.107.211", "192.168.107.212","192.168.107.213",
-            "192.168.107.214","192.168.107.215","171.224.122.145");
+            "192.168.107.214","192.168.107.215","171.255.199.","10.240.152.61","171.255.199.62",
+            "171.255.199.63","171.255.199.82","171.255.199.81","171.255.199.40","171.255.199.41","171.255.199.61");
     Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Pointcut("within(@org.springframework.stereotype.Controller *)")

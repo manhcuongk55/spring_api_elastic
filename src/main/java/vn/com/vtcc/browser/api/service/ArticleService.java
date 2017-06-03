@@ -94,7 +94,12 @@ public class ArticleService {
 
 	public String getListHotArticles(String from, String size, String timestamp,String source, String connectivity)
 			throws ParseException, UnknownHostException {
-		List<String> sources = Arrays.asList(source.split(","));
+		List<String> sources = new ArrayList<>();
+		sources.addAll(Arrays.asList(source.split(",")));
+		if (sources.contains("kenh14.vn")) {
+			sources.remove("kenh14.vn");
+			sources.add("kenh14");
+		}
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4")
 							.setTypes("article").setSearchType(SearchType.QUERY_THEN_FETCH)
 							.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1)));
@@ -114,7 +119,12 @@ public class ArticleService {
 
 	public String getListArticleByCatId(String from, String size, String categoryId, String timestamp, String source,
 										String connectivity) throws ParseException, UnknownHostException {
-		List<String> sources = Arrays.asList(source.split(","));
+		List<String> sources = new ArrayList<>();
+		sources.addAll(Arrays.asList(source.split(",")));
+		if (sources.contains("kenh14.vn")) {
+			sources.remove("kenh14.vn");
+			sources.add("kenh14");
+		}
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
 				.setSearchType(SearchType.QUERY_THEN_FETCH)
 				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("display", 1))
@@ -122,6 +132,7 @@ public class ArticleService {
 		if (!sources.contains("*")) {
 			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
 		}
+
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
 		}  else {
@@ -136,7 +147,12 @@ public class ArticleService {
 
 	public String getListArticleByCatName(String from, String size, String categoryName, String timestamp, String source,
 										  String connectivity) throws ParseException, UnknownHostException {
-		List<String> sources = Arrays.asList(source.split(","));
+		List<String> sources = new ArrayList<>();
+		sources.addAll(Arrays.asList(source.split(",")));
+		if (sources.contains("kenh14.vn")) {
+			sources.remove("kenh14.vn");
+			sources.add("kenh14");
+		}
 
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
 				.setSearchType(SearchType.QUERY_THEN_FETCH)
@@ -174,7 +190,13 @@ public class ArticleService {
 	}
 
 	public String getRelatedArticles(String id, String size, String timestamp, String source, String connectivity) {
-		List<String> sources = Arrays.asList(source.split(","));
+		List<String> sources = new ArrayList<>();
+		sources.addAll(Arrays.asList(source.split(",")));
+		if (sources.contains("kenh14.vn")) {
+			sources.remove("kenh14.vn");
+			sources.add("kenh14");
+		}
+
 		Item itemLikeThis = new Item(ProductionConfig.ES_INDEX_NAME, ProductionConfig.ES_INDEX_TYPE, id);
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
 				.setQuery(QueryBuilders.boolQuery()
@@ -207,7 +229,12 @@ public class ArticleService {
 	}
 
 	public String getListArticleByTags(String from, String size, String inputTags, String timestamp, String source, String connectivity) {
-		List<String> sources = Arrays.asList(source.split(","));
+		List<String> sources = new ArrayList<>();
+		sources.addAll(Arrays.asList(source.split(",")));
+		if (sources.contains("kenh14.vn")) {
+			sources.remove("kenh14.vn");
+			sources.add("kenh14");
+		}
 		List<String> tags = Arrays.asList(inputTags.split(","));
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
 				.must(QueryBuilders.termQuery("display",1))

@@ -63,7 +63,6 @@ public class ArticleService {
 	TransportClient esClient = new PreBuiltTransportClient(settings);
 
 	public ArticleService() {
-
 		try {
 			if (Application.PRODUCTION_ENV == true) {
 				this.redisHosts = ProductionConfig.REDIS_HOST_PRODUCTION;
@@ -83,8 +82,6 @@ public class ArticleService {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-
-
 	}
 
 	public static Timestamp getTimeStampNow() {
@@ -228,7 +225,20 @@ public class ArticleService {
 		return ElasticsearchUtils.convertEsResultToString(response);
 	}
 
+	public String getArticleFromNotification(String id) {
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setSearchType(SearchType.QUERY_THEN_FETCH)
+				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("id", id)))
+				.setFetchSource(new String[] {"id", "category","content", "title", "images", "snippet", "time_post","source", "tags", "author"},
+						new String[] {"raw_content", "canonical"});
+		SearchResponse response = req.execute().actionGet();
+		return ElasticsearchUtils.convertEsResultToString(response);
+	}
+
 	public String getListArticleByTags(String from, String size, String inputTags, String timestamp, String source, String connectivity) {
+		if (source.equals("*") || source == null) {
+			source = ProductionConfig.WHITELIST_SOURCE_ES;
+		}
 		List<String> sources = new ArrayList<>();
 		sources.addAll(Arrays.asList(source.split(",")));
 		if (sources.contains("kenh14.vn")) {
@@ -239,9 +249,9 @@ public class ArticleService {
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
 				.must(QueryBuilders.termQuery("display",1))
 				.filter(QueryBuilders.termsQuery("tags", tags));
-		if (!sources.contains("*")) {
-			boolQuery.filter(QueryBuilders.termsQuery("source",sources));
-		}
+
+		boolQuery.filter(QueryBuilders.termsQuery("source",sources));
+
 		SearchRequestBuilder query = this.esClient.prepareSearch("br_article_v4")
 				.setTypes("article").setQuery(boolQuery);
 
@@ -340,18 +350,6 @@ public class ArticleService {
 			e.printStackTrace();
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-	}
-
-	public ResponseEntity<Object> getTagsOfEducationCategory(String size, String category_id) throws JSONException {
-
-		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
-				.setSearchType(SearchType.QUERY_THEN_FETCH)
-				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("category.id",category_id)))
-				.addAggregation(AggregationBuilders.terms("tags").field("tags").size(Integer.parseInt(size)));
-
-		SearchResponse response = req.execute().actionGet();
-		String result = ElasticsearchUtils.convertEsResultAggrsToString(response);
-		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 
 	public String getListVideoArticles(String from, String size, String connectivity) throws ParseException, UnknownHostException {

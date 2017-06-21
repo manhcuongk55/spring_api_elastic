@@ -32,10 +32,10 @@ public class ElasticsearchUtils {
         return gson.toJson(results);
     }
 
-    public static String convertEsResultAggrsToString(SearchResponse response) throws JSONException {
+    public static String convertEsResultAggrsToString(SearchResponse response, String key) throws JSONException {
         Gson gson = new Gson();
         ArrayList<Object> results = new ArrayList<Object>();
-        Terms terms = response.getAggregations().get("tags");
+        Terms terms = response.getAggregations().get(key);
         Collection<Terms.Bucket> buckets = terms.getBuckets();
         for (Terms.Bucket bucket : buckets) {
             JSONObject obj = new JSONObject();

@@ -16,6 +16,7 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.config.ProductionConfig;
+import vn.com.vtcc.browser.api.utils.DateTimeUtils;
 import vn.com.vtcc.browser.api.utils.ElasticsearchUtils;
 
 import java.net.InetAddress;
@@ -31,9 +32,11 @@ import java.util.stream.Collectors;
 public class LoggingService {
     private static final String DEVICE_NOTIFICATION_CAT_KEY = "categories";
     private static final String DEVICE_NOTIFICATION_KEY = "device_id";
+    public static final String LIST_ARTICLE_BY_CATEGORY_FUNCTION = "postListArticlesByCategor";
+    public static final String NOTIFICATION_CLICK_FUNCTION = "getArticleByNotification";
     private static final String FILTER_TERM = "parameters:\"size:20,from:0\"";
     private static final String START_DATE = "2017-05-17T00:00:00";
-    Settings settings = Settings.builder().put("cluster.name", "sfive")
+    Settings settings = Settings.builder().put("cluster.name", "vbrowser")
             .put("client.transport.sniff", true).build();
     TransportClient esClient = new PreBuiltTransportClient(settings);
     private String[] esHosts = {""};
@@ -63,7 +66,7 @@ public class LoggingService {
         Date date = new Date();
 
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
-                .must(QueryBuilders.termsQuery("function.keyword","postListArticlesByCategor"))
+                .must(QueryBuilders.termsQuery("function.keyword",LIST_ARTICLE_BY_CATEGORY_FUNCTION))
                 .must(QueryBuilders.queryStringQuery(FILTER_TERM))
                 .must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
 
@@ -73,7 +76,6 @@ public class LoggingService {
                         .subAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_KEY).field("notificationId.keyword").size(1000)));
 
         SearchResponse response = query.setSize(0).execute().actionGet();
-
         try {
             data = ElasticsearchUtils.convertEsResultAggrsToArray
                     (response,DEVICE_NOTIFICATION_CAT_KEY,DEVICE_NOTIFICATION_KEY);
@@ -106,6 +108,21 @@ public class LoggingService {
             e.printStackTrace();
         }
         return results;
+    }
+
+    public String getTopCategoryOfDevice(String deviceId) throws JSONException {
+        String result = "";
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
+                .must(QueryBuilders.termsQuery("function.keyword",LIST_ARTICLE_BY_CATEGORY_FUNCTION))
+                .must(QueryBuilders.queryStringQuery(FILTER_TERM))
+                .must(QueryBuilders.rangeQuery("@timestamp").from(START_DATE));
+
+        SearchRequestBuilder query = this.esClient.prepareSearch("browser_logging_v2")
+                .setTypes("logs").setQuery(boolQuery)
+                .addAggregation(AggregationBuilders.terms(DEVICE_NOTIFICATION_CAT_KEY).field("parameters.keyword").size(1));
+        SearchResponse response = query.setSize(0).execute().actionGet();
+        result = ElasticsearchUtils.convertEsResultAggrsToString(response,DEVICE_NOTIFICATION_CAT_KEY);
+        return result;
     }
 
     public JSONObject getListDeviceIdsByCategoryId(String id, String from, String size) {
@@ -146,5 +163,26 @@ public class LoggingService {
             e.printStackTrace();
         }
         return results;
+    }
+
+    public String getTotalNotificationClicks(String from, String to, String device) {
+        if (from.equals("")) { from = DateTimeUtils.getPreviousDate(7);}
+        if (to.equals("")) { to = DateTimeUtils.getTimeNow("yyyy-MM-dd HH:mm:ss");}
+
+        JSONObject result = new JSONObject();
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
+                .must(QueryBuilders.termsQuery("function.keyword",NOTIFICATION_CLICK_FUNCTION))
+                .must(QueryBuilders.rangeQuery("@timestamp").from(from).to(to));
+
+        if (device.equals("ios")) {
+            boolQuery.must(QueryBuilders.wildcardQuery("notificationId.keyword","ios*"));
+        } else if (device.equals("android")) {
+            boolQuery.mustNot(QueryBuilders.wildcardQuery("notificationId.keyword","ios*"));
+        }
+        SearchRequestBuilder query = this.esClient.prepareSearch("browser_logging_v3")
+                .setTypes("logs").setQuery(boolQuery)
+                .addAggregation(AggregationBuilders.terms("top_devices").field("notificationId.keyword"));
+        SearchResponse response = query.setSize(10).execute().actionGet();
+        return response.toString();
     }
 }

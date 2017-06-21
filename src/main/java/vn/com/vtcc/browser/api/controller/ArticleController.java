@@ -41,6 +41,16 @@ public class ArticleController {
 	}
 
 	@CrossOrigin
+	@RequestMapping(value = "/notification_detail", method = RequestMethod.GET, produces = "application/json")
+	//@Cacheable(cacheNames="getArticleById", key="#id")
+	public String getArticleByNotification(
+			@RequestParam(value = "id", defaultValue = "596b8412b2c5fad54a4ee565a37e7baa") String id)
+			throws org.json.simple.parser.ParseException {
+		//return ArticleService.getArticleById(id);
+		return ArticleService.getArticleFromNotification(id);
+	}
+
+	@CrossOrigin
 	@RequestMapping(value = "/get_list_hot_article", method = RequestMethod.GET, produces = "application/json")
 	public String getListHotNews(@RequestParam(value = "from", defaultValue = "0") String from,
 								 @RequestParam(value = "size", defaultValue = "20") String size,
@@ -270,14 +280,6 @@ public class ArticleController {
 		} catch (SocketTimeoutException e) {
 			System.out.println("================> Their server not returning image: " +input);
 		}
-	}
-
-	@CrossOrigin
-	@RequestMapping(value = "/list_tags_education", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<Object> getListTagsForEducationCategory(@RequestParam(value = "size", defaultValue = "10") String size,
-																  @RequestParam(value = "cat_id", defaultValue = "1") String cat_id)
-			throws org.json.simple.parser.ParseException, JSONException {
-		return ArticleService.getTagsOfEducationCategory(size,cat_id);
 	}
 
 	@CrossOrigin

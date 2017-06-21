@@ -70,10 +70,10 @@ public class LoggingHandler {
             long elapsedTime = System.currentTimeMillis() - start;
             String params = Arrays.toString(joinPoint.getArgs());
             String requestParams = params.split("(?<=}, )")[0].replace("[{","{").replace("}, ","}");
+            requestParams = requestParams.replaceAll("\"source\":\".*\",","");
             String notificationId = request.getHeader("notificationId") == null ? "undefined" : request.getHeader("notificationId");
             String message = now + " " + request.getRemoteAddr() + " " + request.getMethod() + " " + methodName
                     + " " + requestParams + " " + elapsedTime + " " + notificationId;
-
             log.info(message);
             return result;
         } catch (IllegalArgumentException e) {

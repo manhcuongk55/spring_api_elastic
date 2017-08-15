@@ -1,0 +1,19 @@
+syntax = "proto2";
+package common;
+
+option java_package = "vn.com.vtcc.browser.api.protobuf";
+option java_outer_classname = "NewsApiProtos"
+
+message SearchRequest{
+	optional int size = 1;
+	optional int from = 2;
+	optional string id = 3;
+	optional string source = 4;
+	optional string connectivity = 5;
+	optional int categoryId = 6;
+	optional string categoryName = 7;
+	optional string tags = 8;
+	optional int number = 9;
+	optional string title = 10;
+	optional string input = 11;
+}

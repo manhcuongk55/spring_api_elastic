@@ -1,6 +1,5 @@
 package vn.com.vtcc.browser.api.service;
 
-import org.aspectj.lang.annotation.Aspect;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -9,25 +8,21 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MoreLikeThisQueryBuilder.Item;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.QueryBuilders.*;
 import java.io.*;
 import java.net.*;
 import java.sql.Timestamp;
 import java.util.*;
-import javax.imageio.ImageIO;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.glassfish.jersey.client.ClientProperties;
+import org.joda.time.DateTime;
 import org.json.JSONException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -37,21 +32,20 @@ import org.json.simple.parser.ParseException;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import vn.com.vtcc.browser.api.Application;
 import vn.com.vtcc.browser.api.config.ProductionConfig;
 import vn.com.vtcc.browser.api.exception.DataNotFoundException;
+import vn.com.vtcc.browser.api.utils.DateTimeUtils;
 import vn.com.vtcc.browser.api.utils.ElasticsearchUtils;
-import vn.com.vtcc.browser.api.utils.TextUtils;
 
 public class ArticleService {
 	private static final int TIMESTAMP_DAY_BEFORE = 86400000;
 	private static final int CONNECTION_TIMEOUT = 1000;
 	private static final String[] BLACKLIST_FIELDS = {"raw_content", "canonical"};
 	private static final String[] WHITELIST_FIELDS = {"title","time_post","images","source",
-						"url","tags", "id","content","snippet","category"};
+						"url","tags", "id","content","snippet","category","sort"};
 	private static final String[] MORE_LIKE_THIS_FIELDS = {"tags", "title", "category"};
 	private String[] redisHosts = {""};
 	private String[] esHosts = {""};
@@ -63,7 +57,6 @@ public class ArticleService {
 	TransportClient esClient = new PreBuiltTransportClient(settings);
 
 	public ArticleService() {
-
 		try {
 			if (Application.PRODUCTION_ENV == true) {
 				this.redisHosts = ProductionConfig.REDIS_HOST_PRODUCTION;
@@ -83,16 +76,9 @@ public class ArticleService {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-
-
 	}
 
-	public static Timestamp getTimeStampNow() {
-		Timestamp now = new Timestamp(System.currentTimeMillis());
-		return now;
-	}
-
-	public String getListHotArticles(String from, String size, String timestamp,String source, String connectivity)
+	public String getListHotArticles(String from, String size, Object[] searchAfter, String source, String connectivity)
 			throws ParseException, UnknownHostException {
 		List<String> sources = new ArrayList<>();
 		sources.addAll(Arrays.asList(source.split(",")));
@@ -111,13 +97,18 @@ public class ArticleService {
 		} else {
 			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
-		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
-				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
+		req.addSort("time_post", SortOrder.DESC);
+		if (searchAfter != null && ("0").equals(from)) {
+			req.searchAfter(searchAfter);
+		} else {
+			req.setFrom(Integer.parseInt(from));
+		}
+		SearchResponse response = req.setSize(Integer.parseInt(size)).execute().actionGet();
 
 		return ElasticsearchUtils.convertEsResultToString(response);
 	}
 
-	public String getListArticleByCatId(String from, String size, String categoryId, String timestamp, String source,
+	public String getListArticleByCatId(String from, String size, String categoryId, Object[] searchAfter, String source,
 										String connectivity) throws ParseException, UnknownHostException {
 		List<String> sources = new ArrayList<>();
 		sources.addAll(Arrays.asList(source.split(",")));
@@ -132,20 +123,24 @@ public class ArticleService {
 		if (!sources.contains("*")) {
 			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
 		}
-
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
 		}  else {
 			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
-		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
-				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
+		if (searchAfter != null && ("0").equals(from)) {
+			req.searchAfter(searchAfter);
+		} else {
+			req.setFrom(Integer.parseInt(from));
+		}
+		req.addSort("time_post", SortOrder.DESC);
+		SearchResponse response = req.setSize(Integer.parseInt(size)).execute().actionGet();
 
 		return ElasticsearchUtils.convertEsResultToString(response);
 	}
 
 
-	public String getListArticleByCatName(String from, String size, String categoryName, String timestamp, String source,
+	public String getListArticleByCatName(String from, String size, String categoryName, Object[] searchAfter, String source,
 										  String connectivity) throws ParseException, UnknownHostException {
 		List<String> sources = new ArrayList<>();
 		sources.addAll(Arrays.asList(source.split(",")));
@@ -166,8 +161,11 @@ public class ArticleService {
 		}  else {
 			req.setFetchSource(null,BLACKLIST_FIELDS);
 		}
-		SearchResponse response = req.addSort("time_post", SortOrder.DESC)
-				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
+		req.addSort("time_post", SortOrder.DESC);
+		if (searchAfter != null) {
+			req.searchAfter(searchAfter);
+		}
+		SearchResponse response = req.setSize(Integer.parseInt(size)).execute().actionGet();
 
 		return ElasticsearchUtils.convertEsResultToString(response);
 	}
@@ -190,6 +188,9 @@ public class ArticleService {
 	}
 
 	public String getRelatedArticles(String id, String size, String timestamp, String source, String connectivity) {
+		if (source.equals("*") || source == null) {
+			source = ProductionConfig.WHITELIST_SOURCE_ES;
+		}
 		List<String> sources = new ArrayList<>();
 		sources.addAll(Arrays.asList(source.split(",")));
 		if (sources.contains("kenh14.vn")) {
@@ -205,9 +206,9 @@ public class ArticleService {
 
 		/*SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
 				.setQuery(QueryBuilders.moreLikeThisQuery(MORE_LIKE_THIS_FIELDS, new Item[]{itemLikeThis}).maxQueryTerms(10).minTermFreq(1));*/
-		if (!sources.contains("*")) {
-			req.setPostFilter(QueryBuilders.termsQuery("source", sources));
-		}
+
+		req.setPostFilter(QueryBuilders.termsQuery("source", sources));
+
 		if (!connectivity.equals("wifi")) {
 			req.setFetchSource(WHITELIST_FIELDS,null);
 		} else {
@@ -228,7 +229,24 @@ public class ArticleService {
 		return ElasticsearchUtils.convertEsResultToString(response);
 	}
 
-	public String getListArticleByTags(String from, String size, String inputTags, String timestamp, String source, String connectivity) {
+	public String getArticleFromNotification(String id) {
+		if (id.contains("-")) {
+			id = id.split("-")[0];
+		}
+		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
+				.setSearchType(SearchType.QUERY_THEN_FETCH)
+				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("id", id)))
+				.setFetchSource(new String[] {"id", "category","content", "title", "images", "snippet",
+								"time_post","source", "tags", "author", "url"},
+						new String[] {"raw_content", "canonical"});
+		SearchResponse response = req.execute().actionGet();
+		return ElasticsearchUtils.convertEsResultToString(response);
+	}
+
+	public String getListArticleByTags(String from, String size, String inputTags, Object[] searchAfter, String source, String connectivity) {
+		if (source.equals("*") || source == null) {
+			source = ProductionConfig.WHITELIST_SOURCE_ES;
+		}
 		List<String> sources = new ArrayList<>();
 		sources.addAll(Arrays.asList(source.split(",")));
 		if (sources.contains("kenh14.vn")) {
@@ -239,9 +257,9 @@ public class ArticleService {
 		BoolQueryBuilder boolQuery = QueryBuilders.boolQuery()
 				.must(QueryBuilders.termQuery("display",1))
 				.filter(QueryBuilders.termsQuery("tags", tags));
-		if (!sources.contains("*")) {
-			boolQuery.filter(QueryBuilders.termsQuery("source",sources));
-		}
+
+		boolQuery.filter(QueryBuilders.termsQuery("source",sources));
+
 		SearchRequestBuilder query = this.esClient.prepareSearch("br_article_v4")
 				.setTypes("article").setQuery(boolQuery);
 
@@ -250,8 +268,8 @@ public class ArticleService {
 		}  else {
 			query.setFetchSource(null,BLACKLIST_FIELDS);
 		}
-		SearchResponse response = query.addSort("time_post", SortOrder.DESC)
-				.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
+		query.addSort("time_post", SortOrder.DESC);
+		SearchResponse response = query.setFrom(Integer.parseInt(from)).setSize(Integer.parseInt(size)).execute().actionGet();
 
 		return ElasticsearchUtils.convertEsResultToString(response);
 	}
@@ -330,30 +348,6 @@ public class ArticleService {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 	}
 
-	public ResponseEntity<Object> getHotTagsIOS() {
-		try {
-			String tags = this.jc.get(ProductionConfig.REDIS_KEY_IOS);
-			if (tags != null) {
-				return ResponseEntity.ok(tags);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-	}
-
-	public ResponseEntity<Object> getTagsOfEducationCategory(String size, String category_id) throws JSONException {
-
-		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
-				.setSearchType(SearchType.QUERY_THEN_FETCH)
-				.setQuery(QueryBuilders.boolQuery().must(QueryBuilders.matchQuery("category.id",category_id)))
-				.addAggregation(AggregationBuilders.terms("tags").field("tags").size(Integer.parseInt(size)));
-
-		SearchResponse response = req.execute().actionGet();
-		String result = ElasticsearchUtils.convertEsResultAggrsToString(response);
-		return ResponseEntity.status(HttpStatus.OK).body(result);
-	}
-
 	public String getListVideoArticles(String from, String size, String connectivity) throws ParseException, UnknownHostException {
 		SearchRequestBuilder req = this.esClient.prepareSearch("br_article_v4").setTypes("article")
 				.setSearchType(SearchType.QUERY_THEN_FETCH)
@@ -377,5 +371,40 @@ public class ArticleService {
 			result = content.split("(?<=/p>|/div>|/br>|tr>|td>|thead>|tbody> )");
 		}
 		return result;
+	}
+
+	public org.json.JSONArray getTopHotArticles() throws JSONException {
+		SearchResponse response = new SearchResponse();
+		org.json.JSONArray result = new org.json.JSONArray();
+		org.json.JSONArray data = new org.json.JSONArray();
+		DateTime dateFrom = DateTimeUtils.getPreviousTime("hour", 1);
+		if (dateFrom != null) {
+			long from = DateTimeUtils.convertDateTimeToUnixTimestamp(dateFrom);
+
+			BoolQueryBuilder boolQuery = QueryBuilders.boolQuery().must(QueryBuilders.termsQuery("display", "1"))
+					.must(QueryBuilders.rangeQuery("time_post").from(from / 1000));
+			SearchRequestBuilder query = esClient.prepareSearch("br_article_v4").setTypes("article").setQuery(boolQuery)
+					.addAggregation(AggregationBuilders.terms("hot_tags").field("tags")
+							.subAggregation(AggregationBuilders.topHits("top_article_of_tags").size(10)));
+			response = query.setSize(0).execute().actionGet();
+			if (response != null) {
+				org.json.JSONObject response1 = new org.json.JSONObject(response.toString());
+				org.json.JSONObject aggregations = (org.json.JSONObject) response1.get("aggregations");
+				org.json.JSONObject results = (org.json.JSONObject) aggregations.get("hot_tags");
+				result = results.getJSONArray("buckets");
+				for (int i = 0; i < result.length(); i++) {
+					org.json.JSONObject obj = result.getJSONObject(i);
+					org.json.JSONArray arr = obj.getJSONObject("top_article_of_tags").getJSONObject("hits").getJSONArray("hits");
+					for (int j = 0; j < arr.length(); j++) {
+						org.json.JSONObject o = new org.json.JSONObject();
+						o.put("_source", arr.getJSONObject(j).get("_source"));
+						o.put("_id", arr.getJSONObject(j).get("_id"));
+						data.put(j, o);
+					}
+				}
+			}
+
+		}
+		return data;
 	}
 }

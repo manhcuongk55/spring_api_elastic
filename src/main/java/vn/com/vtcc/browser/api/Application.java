@@ -27,8 +27,10 @@ import java.util.Map;
 @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
 @Configuration
 public class Application extends WebMvcConfigurerAdapter {
-	public static boolean PRODUCTION_ENV = false;
-	public static String ES_CLUSTER_NAME = "vbrowser";
+	/*public static boolean PRODUCTION_ENV = false;
+	public static String ES_CLUSTER_NAME = "browserlabs";*/
+	public static boolean PRODUCTION_ENV = true;
+	public static String ES_CLUSTER_NAME = "sfive";
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/site_logos/**")
@@ -38,11 +40,8 @@ public class Application extends WebMvcConfigurerAdapter {
 		registry.addResourceHandler("/source_logos_favicon/**")
 				.addResourceLocations("/resources/","classpath:/source_logos_favicon/");
 	}
-
-
 	public static void main(String[] args) {
 		SpringApplication springApplication = new SpringApplication();
 		springApplication.run(Application.class,args);
 	}
-	
 }

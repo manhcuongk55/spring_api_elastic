@@ -26,6 +26,7 @@ public class ElasticsearchUtils {
             JSONObject obj = new JSONObject();
             obj.put("_source",hits[i].getSource());
             obj.put("_id", hits[i].getId());
+            obj.put("sort", hits[i].getSortValues());
             results.add(obj);
         }
 

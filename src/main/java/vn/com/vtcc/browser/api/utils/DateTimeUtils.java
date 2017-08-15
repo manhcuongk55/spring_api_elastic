@@ -17,4 +17,24 @@ public class DateTimeUtils {
         DateTime lastWeek = new DateTime().minusDays(7);
         return lastWeek.toString();
     }
+
+    public static DateTime getPreviousTime(String timeFormat, int difference) {
+        DateTime result = new DateTime();
+        switch (timeFormat) {
+            case "date" :
+                result = new DateTime().minusDays(difference);
+                break;
+            case "hour" :
+                result = new DateTime().minusHours(difference);
+                break;
+            case "minute" :
+                result = new DateTime().minusMinutes(difference);
+                break;
+        }
+        return result;
+    }
+
+    public static long convertDateTimeToUnixTimestamp(DateTime time) {
+        return time.toDateTime().getMillis();
+    }
 }

@@ -22,8 +22,9 @@ public class ProductionConfig {
     public static final int REDIS_PORT = 3001;
     public static final int ES_TRANSPORT_PORT = 9300;
 
-    public static final String[] REDIS_HOST_STAGING = {"192.168.107.201", "192.168.107.202", "192.168.107.203",
-                                                        "192.168.107.204", "192.168.107.205", "192.168.107.206"};
+    public static final String[] REDIS_HOST_STAGING = {"10.240.152.146", "10.240.152.147","10.240.152.148","10.240.152.149",
+            "10.240.152.150","10.240.152.151"};
+
 
     public static final String[] REDIS_HOST_PRODUCTION = {"10.240.152.63", "10.240.152.64", "10.240.152.65",
                                                         "10.240.152.66", "10.240.152.67", "10.240.152.68"};
@@ -31,8 +32,9 @@ public class ProductionConfig {
     public static final String[] ES_HOST_PRODUCTION = {"10.240.152.69", "10.240.152.70","10.240.152.71","10.240.152.72",
     "10.240.152.73","10.240.152.74","10.240.152.75","10.240.152.76","10.240.152.77","10.240.152.78"};
 
-    public static final String[] ES_HOST_STAGING = {"192.168.107.231", "192.168.107.232","192.168.107.233","192.168.107.234",
-                                                    "192.168.107.235","192.168.107.236"};
+    public static final String[] ES_HOST_STAGING = {"10.240.152.146", "10.240.152.147","10.240.152.148","10.240.152.149",
+            "10.240.152.150","10.240.152.151"};
+
 
     public static final String WHITELIST_SOURCE_MYSQL = "'tiin.vn','netnews.vn','moison.vn','songkhoe.vn','news.zing.vn'," +
             "'kenh14.vn','cand.com.vn','ictnews.vn','soha.vn','doisongphapluat.com','vietnamplus.vn','congluan.vn'," +

@@ -2,6 +2,7 @@ package vn.com.vtcc.browser.api.utils;
 
 import javax.net.ssl.*;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -9,15 +10,17 @@ import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 
 /**
  * Created by giang on 29/03/2017.
  */
 public class UrlUtils {
     private static SSLSocketFactory sslSocketFactory = null;
+    private static final String BLACK_LIST_DOMAIN = "hanoi.gov.vn";
 
     public static String convertToURLEscapingIllegalCharacters(String string) throws UnsupportedEncodingException {
-        if (string.contains("/")) {
+        if (string.contains("/") && !string.contains(BLACK_LIST_DOMAIN)) {
             String[] tokens = string.split("/");
             tokens[tokens.length -1] = URLEncoder.encode(tokens[tokens.length -1].split("\\?")[0], "UTF-8");
             tokens[tokens.length -1] = tokens[tokens.length -1].replace("+","%20");

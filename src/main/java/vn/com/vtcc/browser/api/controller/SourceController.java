@@ -127,7 +127,8 @@ public class SourceController {
 
     @CrossOrigin
     @RequestMapping(value = "/suggest_sites_by_category", method = RequestMethod.GET)
-    public String suggestSourcesByCategory(@RequestParam(value="size", defaultValue = "6") String size, @RequestParam(value="categoryId", defaultValue = "1") String categoryId ) {
+    public String suggestSourcesByCategory(@RequestParam(value="size", defaultValue = "6") String size,
+                                           @RequestParam(value="categoryId", defaultValue = "1") String categoryId ) {
         return sourceService.suggestSourcesByCategory(categoryId,size);
     }
 

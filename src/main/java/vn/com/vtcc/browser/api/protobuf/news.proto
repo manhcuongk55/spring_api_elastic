@@ -2,18 +2,57 @@ syntax = "proto2";
 package common;
 
 option java_package = "vn.com.vtcc.browser.api.protobuf";
-option java_outer_classname = "NewsApiProtos"
+option java_outer_classname = "NewsApiProtos";
 
-message SearchRequest{
-	optional int size = 1;
-	optional int from = 2;
+message ApiSearchRequest{
+	optional int32 size = 1;
+	optional int32 from = 2;
 	optional string id = 3;
 	optional string source = 4;
 	optional string connectivity = 5;
-	optional int categoryId = 6;
+	optional int32 categoryId = 6;
 	optional string categoryName = 7;
 	optional string tags = 8;
-	optional int number = 9;
+	optional int32 number = 9;
 	optional string title = 10;
 	optional string input = 11;
+	optional int64 searchAfter = 12;
+}
+
+message ApiSearchResponse {
+	repeated Source _source = 1;
+	required string _id = 2;
+	repeated int64 sort = 3;
+
+	message Sort {
+		required int32 sort = 1;
+	}
+
+	message Source {
+		required string id = 1;
+		required string content = 2;
+		required string raw_content = 3;
+		required string source = 4;
+		required float time_post = 5;
+		required string url = 6;
+		optional int32 display = 7;
+		repeated string title = 8;
+		repeated string snippet = 9;
+		optional Category category = 10;
+		repeated string tags = 11;
+		optional int32 duplicated = 12;
+		optional int32 view_count = 13;
+		optional int32 like_count = 14;
+		repeated string images = 15;
+		repeated string author = 16;
+		optional float timestamp = 17;
+
+		message Category {
+			required int32 id = 1;
+			required string name = 2;
+			required string display_name = 3;
+			optional string image = 4;
+		}
+	}
+
 }

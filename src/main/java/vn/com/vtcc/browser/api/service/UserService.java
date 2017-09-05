@@ -8,9 +8,6 @@ import javax.ws.rs.core.Response;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
@@ -23,7 +20,7 @@ import vn.com.vtcc.browser.api.utils.HibernateUtils;
 public class UserService {
 	Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
 
-	public  User loginByGoogle(String access_token) throws ParseException {
+	/*public  User loginByGoogle(String access_token) {
 		User userResponse = new User();
 		User userUpdate = new User();
 		WebTarget rootTarget = client.target(ProductionConfig.URL_GOOGLE + access_token);
@@ -58,7 +55,7 @@ public class UserService {
 		}
 		return userResponse;
 
-	}
+	}*/
 
 	@SuppressWarnings("deprecation")
 	public  User getUserFromDatabase(Session session, String googleID, User userUpdate) {

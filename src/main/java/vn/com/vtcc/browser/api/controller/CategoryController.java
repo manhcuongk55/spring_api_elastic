@@ -13,8 +13,7 @@ public class CategoryController {
 	CategoryService categoryService = new CategoryService();
 	@CrossOrigin
 	@RequestMapping(value = "/get_category", method = RequestMethod.GET, produces = "application/json")
-	public String getArticleById()
-			throws org.json.simple.parser.ParseException {
+	public String getListCategories(){
 		return categoryService.getCategoryFromDatabase();
 	}
 }

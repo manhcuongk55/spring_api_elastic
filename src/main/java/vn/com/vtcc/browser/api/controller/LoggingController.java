@@ -23,8 +23,7 @@ public class LoggingController {
     @CrossOrigin
     @RequestMapping(value = "/list_deviceId_with_categories", method = RequestMethod.GET, produces = "application/json")
     public String getListDeviceId(@RequestParam(value = "from" , defaultValue = "0") String from,
-                                  @RequestParam (value = "size" , defaultValue = "20") String size)
-            throws org.json.simple.parser.ParseException {
+                                  @RequestParam (value = "size" , defaultValue = "20") String size) {
         return loggingService.getListDeviceIdsFromAllCategories().toString();
     }
 
@@ -33,14 +32,13 @@ public class LoggingController {
     public String getListDeviceIdByCategory(@RequestParam (value = "id", defaultValue = "2") String id,
                                             @RequestParam (value = "from" , defaultValue = "0") String from,
                                             @RequestParam (value = "size" , defaultValue = "20") String size)
-            throws org.json.simple.parser.ParseException {
+            {
         return loggingService.getListDeviceIdsByCategoryId(id, from, size).toString();
     }
 
     @CrossOrigin
     @RequestMapping(value = "/top_category_of_device", method = RequestMethod.GET)
-    public String getListDeviceIdByCategory(@RequestParam (value = "id", defaultValue = "2") String id)
-            throws org.json.simple.parser.ParseException, JSONException {
+    public String getListDeviceIdByCategory(@RequestParam (value = "id", defaultValue = "2") String id) throws JSONException {
         return loggingService.getTopCategoryOfDevice(id);
     }
 
@@ -48,15 +46,13 @@ public class LoggingController {
     @RequestMapping(value = "/notification_clicks", method = RequestMethod.GET)
     public String getTotalnotificationclicks(@RequestParam (value = "from", defaultValue = "") String from,
                                                  @RequestParam (value = "to", defaultValue = "") String to,
-                                             @RequestParam (value = "device", defaultValue = "") String device)
-            throws org.json.simple.parser.ParseException, JSONException {
+                                             @RequestParam (value = "device", defaultValue = "") String device){
         return loggingService.getTotalNotificationClicks(from,to,device);
     }
 
     @CrossOrigin
     @RequestMapping(value = "/notification_clicks_of_article", method = RequestMethod.POST, produces = "application/json")
-    public String getTotalnotificationclicksOfArticle(@RequestBody JSONObject data)
-            throws org.json.simple.parser.ParseException, JSONException {
+    public String getTotalnotificationclicksOfArticle(@RequestBody JSONObject data) throws JSONException {
 
         String id = data.get("id") == null ? "6fc88a4c8cc4436880827f90d3047803-20170712144707000"
                 : data.get("id").toString();
@@ -66,8 +62,7 @@ public class LoggingController {
 
     @CrossOrigin
     @RequestMapping(value = "/set_log", method = RequestMethod.POST, produces = "application/json")
-    public String setLogForMessageBox(@RequestBody MessageBoxLogRequest data)
-            throws org.json.simple.parser.ParseException, UnknownHostException, JSONException {
+    public String setLogForMessageBox(@RequestBody MessageBoxLogRequest data){
         return loggingService.saveLogForMessageBox(data).toString();
     }
 

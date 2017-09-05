@@ -12,6 +12,11 @@ public class ProductionConfig {
     public static final String URL_GOOGLE = "https://www.googleapis.com/oauth2/v2/userinfo?access_token=";
 
     public static final String STATUS_DISPLAY = "1";
+    public static final int REQUEST_TIMEOUT = 5000;
+    public static final String EMPTY_STRING = "";
+    public static final int DEFAULT_RESPONSE_SIZE = 5;
+    public static final int MIN_TERM_FREQ = 2;
+
     //public static final String HOST_NAME = "http://news.safenet.vn/";
     public static final String MEDIA_HOST_NAME = "http://media.sfive.vn/";
     public static final String REDIS_KEY = "HOT_TAGS";
@@ -32,8 +37,7 @@ public class ProductionConfig {
     public static final String[] ES_HOST_PRODUCTION = {"10.240.152.69", "10.240.152.70","10.240.152.71","10.240.152.72",
     "10.240.152.73","10.240.152.74","10.240.152.75","10.240.152.76","10.240.152.77","10.240.152.78"};
 
-    public static final String[] ES_HOST_STAGING = {"10.240.152.146", "10.240.152.147","10.240.152.148","10.240.152.149",
-            "10.240.152.150","10.240.152.151"};
+    public static final String[] ES_HOST_STAGING = {"10.240.152.146"};
 
 
     public static final String WHITELIST_SOURCE_MYSQL = "'tiin.vn','netnews.vn','moison.vn','songkhoe.vn','news.zing.vn'," +

@@ -7,7 +7,7 @@ package vn.com.vtcc.browser.api.aspect;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
+import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.Gson;
@@ -15,26 +15,37 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
-import org.json.JSONArray;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.script.Script;
 import org.json.JSONException;
-import org.json.simple.JSONObject;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import vn.com.vtcc.browser.api.config.ProductionConfig;
+import vn.com.vtcc.browser.api.elasticsearch.ESClient;
+import vn.com.vtcc.browser.api.model.ApiSearchRequest;
+import vn.com.vtcc.browser.api.utils.TextUtils;
 
 @Aspect
 @Component
-
 public class LoggingHandler {
-    Gson gson = new Gson();
     private final List<String> BLACKLIST_IPS = Arrays.asList("192.168.107.211", "192.168.107.212","192.168.107.213",
             "192.168.107.214","192.168.107.215","10.240.152.61","171.255.199.62",
             "171.255.199.63","171.255.199.82","171.255.199.81","171.255.199.40","171.255.199.41","171.255.199.61");
     private final List<String> BLACKLIST_FUNCTIONS = Arrays.asList("getImageFromByteArray","getHotTags",
             "getListCategories","updateRedisHotTags","getListSources","setLogForMessageBox","listLogByJobID");
     Logger log = LoggerFactory.getLogger(this.getClass());
+    TransportClient esClient;
+
+    @Autowired
+    public LoggingHandler(ESClient es_client) {
+        this.esClient = es_client.getClient();
+    }
 
     @Pointcut("within(@org.springframework.stereotype.Controller *)")
     public void controller() {
@@ -46,28 +57,36 @@ public class LoggingHandler {
     @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
     public void restController() {}
 
-    //@Pointcut("execution(* net.tds.adm.metasolv.customerlink.services.*.get*(..))")
     @Pointcut("execution(* vn.com.vtcc.browser.api.controller.ArticleController.getArticleByNotification(..))" )
+    public void detailControllerNotification() {}
+
+    @Pointcut("execution(* vn.com.vtcc.browser.api.controller.ArticleController.postListArticleReleated(..))" )
+    public void detailControllerRelated() {}
+
+    @Pointcut("execution(* vn.com.vtcc.browser.api.controller.ArticleController.getArticleById(..))" )
     public void detailController() {}
 
-    //@Pointcut("execution(* net.tds.adm.metasolv.customerlink.services.*.get*(..))")
-    @Pointcut("execution(* vn.com.vtcc.browser.api.controller.ArticleController.postListArticleReleated(..))" )
-    public void detailRelatedController() {}
+    /*@Pointcut("execution(* vn.com.vtcc.browser.api.controller.ArticleController.streamingVideo(..))" )
+    public void streamVideo() {}*/
 
     @Pointcut("within(vn.com.vtcc.browser.api..*)")
     public void logAnyFunctionWithinResource() {}
 
-    @AfterReturning("detailController() || detailRelatedController()")
-    public void updateUserViews(JoinPoint joinPoint) throws JSONException {
+    @After("detailControllerRelated() || detailController()")
+    public void updateUserViews(JoinPoint joinPoint) throws JSONException, ExecutionException, InterruptedException {
         Object[] inputParams = joinPoint.getArgs();
-        ArrayList<String> params = new ArrayList<>();
+        String id = ProductionConfig.EMPTY_STRING;
         for (Object p : inputParams) {
             if (p instanceof String) {
-                params.add(p.toString());
-            } else {
-                JSONObject obj = (JSONObject) p;
-                params.add(obj.get("id").toString());
+                id = p.toString();
+            } else if (p instanceof ApiSearchRequest) {
+                id = ((ApiSearchRequest) p).getId();
             }
+        }
+        if (!ProductionConfig.EMPTY_STRING.equals(id)) {
+            UpdateRequest updateRequest = new UpdateRequest(ProductionConfig.ES_INDEX_NAME,ProductionConfig.ES_INDEX_TYPE,id)
+                    .script(new Script("ctx._source.viewCount++"));
+            this.esClient.update(updateRequest).get();
         }
     }
 
@@ -88,8 +107,15 @@ public class LoggingHandler {
             }
             long elapsedTime = System.currentTimeMillis() - start;
             String params = Arrays.toString(joinPoint.getArgs());
-            String requestParams = params.split("(?<=}, )")[0].replace("[{","{").replace("}, ","}");
-            requestParams = requestParams.replaceAll("\"source\":\".*\",","");
+            /*String requestParams = params.split("(?<=}, )")[0].replace("[{","{").replace("}, ","}");
+            requestParams = requestParams.replaceAll("\"source\":\".*\",","");*/
+            int lastBreakLine = params.lastIndexOf("\n");
+            if (lastBreakLine != -1) {
+                params = params.substring(0,lastBreakLine) + params.substring(lastBreakLine+1);
+            }
+            String requestParams = params.replaceAll("\n",",");
+            TextUtils.replaceRedundantLogText(requestParams);
+
             String notificationId = request.getHeader("notificationId") == null ? "undefined" : request.getHeader("notificationId");
             String currentAppVersion = request.getHeader("appVersion") == null ? "undefined" : request.getHeader("appVersion");
             String deviceType = request.getHeader("deviceType") == null ? "undefined" : request.getHeader("deviceType");
@@ -106,17 +132,5 @@ public class LoggingHandler {
                     + joinPoint.getSignature().getName() + "()");
             throw e;
         }
-    }
-
-    private String getValue(Object result) {
-        String returnValue = null;
-        if (null != result) {
-            if (result.toString().endsWith("@" + Integer.toHexString(result.hashCode()))) {
-                returnValue = ReflectionToStringBuilder.toString(result);
-            } else {
-                returnValue = result.toString();
-            }
-        }
-        return returnValue;
     }
 }

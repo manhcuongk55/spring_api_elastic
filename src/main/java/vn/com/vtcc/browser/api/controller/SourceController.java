@@ -49,8 +49,7 @@ public class SourceController {
 
     @CrossOrigin
     @RequestMapping(value = "/get_sources", method = RequestMethod.GET, produces = "application/json")
-    public String getListSources(Device device)
-            throws org.json.simple.parser.ParseException {
+    public String getListSources(Device device){
         String whitelist_sources = "*";
         DevicePlatform platform = device.getDevicePlatform();
         if (platform.equals(DevicePlatform.IOS)) {

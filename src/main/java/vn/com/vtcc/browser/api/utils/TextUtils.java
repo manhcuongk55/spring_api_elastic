@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.simple.JSONObject;
 
 /**
  * Created by giang on 10/03/2017.
@@ -33,5 +32,13 @@ public class TextUtils {
             }
         }
         return result;
+    }
+
+    public static String replaceRedundantLogText(String requestParams) {
+        requestParams = requestParams.replace("[", "{").replace("]","}");
+        requestParams = requestParams.replaceAll("source: \".*\",","");
+        requestParams = requestParams.replaceAll("searchAfter: .*,","");
+        requestParams = requestParams.replaceAll(",searchAfter: .*}","}");
+        return requestParams;
     }
 }

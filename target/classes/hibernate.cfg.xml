@@ -6,22 +6,44 @@
 <hibernate-configuration>
 	<session-factory>
 		<!-- Database connection settings -->
+		<property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
 		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-		<property name="connection.url">jdbc:mysql://192.168.108.251:3306/webnewsdb?serverTimezone=UTC</property>
-		<property name="connection.username">vbrowser</property>
-		<property name="connection.password">HFL8238**07111988</property>
+
+		<property name="connection.url">jdbc:mysql://10.240.152.10:3307/webnewsdb?serverTimezone=UTC&amp;autoReconnect=true</property>
+		<property name="connection.username">webacc</property>
+		<property name="connection.password">LDGP85387398342*437122**</property>
+		<!--<property name="connection.url">jdbc:mysql://10.240.152.152:3306/webnewsdb?serverTimezone=UTC&amp;autoReconnect=true</property>
+		<property name="connection.username">sfive_lab</property>
+		<property name="connection.password">Jferhrbfdlhu**</property>-->
+
+		<!-- c3p0 config http://www.hibernate.org/214.html -->
+		<property name="connection.provider_class">org.hibernate.c3p0.internal.C3P0ConnectionProvider</property>
+		<property name="hibernate.c3p0.acquire_increment">1</property>
+		<property name="hibernate.c3p0.idle_test_period">60</property>
+		<property name="hibernate.c3p0.min_size">1</property>
+		<property name="hibernate.c3p0.max_size">2</property>
+		<property name="hibernate.c3p0.max_statements">50</property>
+		<property name="hibernate.c3p0.timeout">0</property>
+		<property name="hibernate.c3p0.acquireRetryAttempts">1</property>
+		<property name="hibernate.c3p0.acquireRetryDelay">250</property>
+
+		<property name="hibernate.connection.handling_mode">DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION</property>
+		<property name="maxActive">5</property>
+		<property name="minIdle">2</property>
+
 		<!-- JDBC connection pool (use the built-in) -->
 		<property name="connection.pool_size">100</property>
 		<!-- SQL dialect -->
-		<property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+		<!--<property name="dialect">org.hibernate.dialect.MySQLDialect</property>-->
 		<!-- Enable Hibernate's automatic session context management -->
 		<property name="current_session_context_class">thread</property>
 		<!-- Disable the second-level cache -->
-		<property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>
+		<!--<property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>-->
 		<!-- Echo all executed SQL to stdout -->
 		<property name="show_sql">true</property>
 		<mapping class="vn.com.vtcc.browser.api.model.User" />
 		<mapping class="vn.com.vtcc.browser.api.model.Category" />
 		<mapping class="vn.com.vtcc.browser.api.model.Source" />
+		<mapping class="vn.com.vtcc.browser.api.model.Site" />
 	</session-factory>
 </hibernate-configuration>

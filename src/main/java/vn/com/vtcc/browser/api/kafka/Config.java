@@ -1,7 +1,7 @@
 package vn.com.vtcc.browser.api.kafka;
 
 /**
- * Created by giang on 21/04/2017.
+ * Created by cuongdm29 on 21/04/2017.
  */
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;

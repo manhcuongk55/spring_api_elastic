@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 
 /**
- * Created by c on 21/04/2017.
+ * Created by cuongdm29 on 21/04/2017.
  */
 public class KafkaFactory {
     @Autowired
